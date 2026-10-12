@@ -4,13 +4,20 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
+  const base = process.env.BASE_URL || './';
+
   return {
-    base: './',
+    base,
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve('.'),
       },
+    },
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: false,
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" style="background-color: #090a0f; color: #f8fafc;">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,10 +12,43 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+      // Ensure trailing slash for GitHub Pages project path to guarantee relative asset loading
+      if (location.pathname.endsWith('/Video-Edit-Portfolio')) {
+        location.replace(location.pathname + '/' + location.search + location.hash);
+      }
+    </script>
+    <style>
+      @keyframes rgPulse {
+        0% { transform: scaleX(0.2); opacity: 0.4; }
+        50% { transform: scaleX(1); opacity: 1; }
+        100% { transform: scaleX(0.2); opacity: 0.4; }
+      }
+    </style>
   </head>
-  <body class="bg-[#090A0F] text-[#F8FAFC] antialiased selection:bg-[#E5A93C]/20 selection:text-[#E5A93C]">
-    <div id="root"></div>
+  <body class="bg-[#090A0F] text-[#F8FAFC] antialiased selection:bg-[#E5A93C]/20 selection:text-[#E5A93C]" style="background-color: #090a0f; color: #f8fafc; margin: 0; min-height: 100vh;">
+    <div id="root">
+      <!-- Dark Cinematic Instant Fallback Shell (Replaced automatically when React mounts) -->
+      <div id="initial-loading-shell" style="min-height: 100vh; background-color: #090a0f; color: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 20px;">
+        <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #1A2035, #0F121C); border: 1px solid rgba(229, 169, 60, 0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(229, 169, 60, 0.15);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E5A93C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/>
+          </svg>
+        </div>
+        <div style="font-size: 20px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; color: #ffffff;">
+          Rayhan Gazi
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; font-family: monospace; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 24px;">
+          Post-Production · Master Cuts
+        </div>
+        <div style="width: 180px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; position: relative; margin-bottom: 12px;">
+          <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #E5A93C, #F59E0B); border-radius: 999px; animation: rgPulse 1.2s ease-in-out infinite;"></div>
+        </div>
+        <div style="font-size: 10px; color: #64748b; font-family: monospace; letter-spacing: 0.05em;">
+          Loading Portfolio...
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
