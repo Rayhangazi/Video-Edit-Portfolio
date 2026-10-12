@@ -1,14 +1,17 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { PortfolioProvider } from './context/PortfolioContext';
+import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
+import { HomeView } from './components/pages/HomeView';
 import { Gallery } from './components/Gallery';
-import { Testimonials } from './components/Testimonials';
-import { ContactSection } from './components/ContactSection';
+import { ShowreelView } from './components/pages/ShowreelView';
+import { ReviewsView } from './components/pages/ReviewsView';
+import { ContactView } from './components/pages/ContactView';
 import { Footer } from './components/Footer';
 import { VideoModal } from './components/VideoModal';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { PageLoader } from './components/PageLoader';
+import { CoolPageTransition } from './components/CoolPageTransition';
+import { ToastNotification } from './components/ToastNotification';
 import { Film, RefreshCw } from 'lucide-react';
 
 interface ErrorBoundaryProps {
@@ -68,37 +71,47 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
+const MainContent: React.FC = () => {
+  const { currentPage } = usePortfolio();
+
+  return (
+    <main className="flex-1 animate-in fade-in duration-300">
+      {currentPage === 'home' && <HomeView />}
+      {currentPage === 'projects' && <Gallery />}
+      {currentPage === 'showreel' && <ShowreelView />}
+      {currentPage === 'reviews' && <ReviewsView />}
+      {currentPage === 'contact' && <ContactView />}
+    </main>
+  );
+};
+
 export default function App() {
   return (
     <ErrorBoundary>
       <PortfolioProvider>
+        {/* Initial First-Load Cinematic Animation */}
         <PageLoader />
+
+        {/* Lightweight Cinematic Transition for switching between pages */}
+        <CoolPageTransition />
+
+        {/* Dynamic feedback toast for Sharable category / reel buttons */}
+        <ToastNotification />
+
         <div className="min-h-screen bg-[#090A0F] text-[#F8FAFC] flex flex-col font-sans selection:bg-[#E5A93C]/20 selection:text-[#E5A93C]">
           {/* Navigation Bar */}
           <Navbar />
 
-          {/* Main Content */}
-          <main className="flex-1">
-            {/* Split Screen Hero with Showreel & Headline Metrics */}
-            <Hero />
+          {/* Dedicated Page View Content */}
+          <MainContent />
 
-            {/* Interactive Project Showcase Gallery */}
-            <Gallery />
-
-            {/* Attributable Client Testimonials with Quantifiable Results */}
-            <Testimonials />
-
-            {/* Sleek Minimalist Inquiry Form */}
-            <ContactSection />
-          </main>
-
-          {/* Minimalist Footer */}
+          {/* Footer */}
           <Footer />
 
           {/* Lightbox Cinema Video Player Modal */}
           <VideoModal />
 
-          {/* PIN-Protected Content Management System Modal */}
+          {/* Protected Content Management Modal */}
           <AdminCMSModal />
         </div>
       </PortfolioProvider>

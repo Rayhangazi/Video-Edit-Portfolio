@@ -107,7 +107,7 @@ export function getYouTubeThumbnail(url: string): string | null {
 export function getGoogleDriveThumbnail(url: string): string | null {
   const driveId = extractGoogleDriveId(url);
   if (!driveId) return null;
-  return `https://lh3.googleusercontent.com/d/${driveId}=w800`;
+  return `https://drive.google.com/thumbnail?id=${driveId}&sz=w800`;
 }
 
 /**

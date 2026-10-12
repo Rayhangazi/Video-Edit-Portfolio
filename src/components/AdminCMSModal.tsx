@@ -302,9 +302,6 @@ export const AdminCMSModal: React.FC = () => {
               <p className="text-xs text-slate-400 leading-relaxed">
                 Protected area for Rayhan Gazi to manage projects, video links, client testimonials, and settings.
               </p>
-              <div className="text-[11px] text-[#E5A93C] font-mono pt-1">
-                (Default PIN: 1234)
-              </div>
             </div>
 
             <form onSubmit={handlePinSubmit} className="w-full space-y-4">
@@ -1018,6 +1015,22 @@ export const AdminCMSModal: React.FC = () => {
                       />
                     </div>
 
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-300 font-medium">Master Showreel Thumbnail URL / Path</label>
+                      <input
+                        type="text"
+                        placeholder="/showreel-thumbnail.jpg or custom image URL"
+                        value={settingsForm.showreelThumbnailUrl || ''}
+                        onChange={(e) => {
+                          setSettingsForm({ 
+                            ...settingsForm, 
+                            showreelThumbnailUrl: e.target.value
+                          });
+                        }}
+                        className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs font-mono"
+                      />
+                    </div>
+
                     <div className="pt-2 flex justify-end">
                       <button
                         type="submit"
@@ -1059,7 +1072,7 @@ export const AdminCMSModal: React.FC = () => {
                         className="px-4 py-2 rounded-lg text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center gap-1.5 transition-colors"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Reset to Default Demo</span>
+                        <span>Reset to Initial Portfolio Data</span>
                       </button>
                     </div>
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Lock, ArrowUp, Film } from 'lucide-react';
+import { AppPage } from '../types/portfolio';
 
 export const Footer: React.FC = () => {
-  const { settings, openAdminModal, isAuthenticated } = usePortfolio();
+  const { settings, openAdminModal, isAuthenticated, navigateTo } = usePortfolio();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -11,7 +12,7 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="w-full py-12 border-t border-white/[0.08] bg-[#090A0F]">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white/[0.06]">
           
@@ -20,34 +21,61 @@ export const Footer: React.FC = () => {
             <span className="font-display font-extrabold text-lg text-white tracking-tight">
               {settings.editorName.toUpperCase()}
             </span>
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-slate-400 font-mono text-center md:text-left">
               {settings.roleTitle}
             </span>
           </div>
 
           {/* Quick Nav Links */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-medium">
-            <a href="#works" className="hover:text-white transition-colors">
-              YouTube Works
-            </a>
-            <a href="#drive-demos" className="text-blue-300 hover:text-white transition-colors">
-              Drive Demos
-            </a>
-            <a href="#showreel" className="hover:text-white transition-colors">
+            <button 
+              onClick={() => navigateTo('home')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => navigateTo('projects')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              All Projects
+            </button>
+            <button 
+              onClick={() => navigateTo('projects', 'commercial')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Commercials
+            </button>
+            <button 
+              onClick={() => navigateTo('projects', 'gdrive')} 
+              className="text-blue-300 hover:text-white transition-colors cursor-pointer"
+            >
+              Drive Deliverables
+            </button>
+            <button 
+              onClick={() => navigateTo('showreel')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
               Master Showreel
-            </a>
-            <a href="#testimonials" className="hover:text-white transition-colors">
+            </button>
+            <button 
+              onClick={() => navigateTo('reviews')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
               Client Reviews
-            </a>
-            <a href="#contact" className="hover:text-white transition-colors">
+            </button>
+            <button 
+              onClick={() => navigateTo('contact')} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
               Inquire
-            </a>
+            </button>
           </div>
 
           {/* Back to top */}
           <button
             onClick={scrollToTop}
-            className="p-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-mono"
+            className="p-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-mono cursor-pointer"
             aria-label="Back to top"
           >
             <span>Top</span>
@@ -65,7 +93,7 @@ export const Footer: React.FC = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={openAdminModal}
-              className="text-xs text-slate-400 hover:text-[#E5A93C] transition-colors flex items-center gap-1.5 font-mono"
+              className="text-xs text-slate-400 hover:text-[#E5A93C] transition-colors flex items-center gap-1.5 font-mono cursor-pointer"
             >
               <Lock className="w-3 h-3" />
               <span>{isAuthenticated ? 'Admin CMS Active' : 'CMS Portal'}</span>

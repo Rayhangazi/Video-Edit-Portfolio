@@ -34,6 +34,8 @@ export interface Testimonial {
   projectReference?: string;
 }
 
+export type AppPage = 'home' | 'projects' | 'showreel' | 'reviews' | 'contact';
+
 export interface SiteSettings {
   editorName: string;
   roleTitle: string;
@@ -46,6 +48,7 @@ export interface SiteSettings {
   adminPin: string;
   showreelUrl: string;
   showreelSource: VideoSourceType;
+  showreelThumbnailUrl?: string;
 }
 
 export interface InquiryFormData {
