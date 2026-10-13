@@ -309,7 +309,7 @@ export const AdminCMSModal: React.FC = () => {
                 <input
                   type="password"
                   autoFocus
-                  placeholder="Enter 4-digit PIN..."
+                  placeholder="Enter PIN (6463)..."
                   value={pinInput}
                   onChange={(e) => {
                     setPinInput(e.target.value);

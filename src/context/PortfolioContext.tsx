@@ -151,9 +151,11 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
       if (saved) {
         const parsed = JSON.parse(saved);
+        const adminPin = parsed.adminPin === '1234' ? '6463' : (parsed.adminPin || '6463');
         return {
           ...DEFAULT_SITE_SETTINGS,
           ...parsed,
+          adminPin,
           showreelThumbnailUrl: parsed.showreelThumbnailUrl || DEFAULT_SITE_SETTINGS.showreelThumbnailUrl
         };
       }
@@ -257,35 +259,45 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   }, [googleDriveSubCategories]);
 
-  // Record traffic telemetry
+  // Listen for real-time traffic updates across the window / tabs
+  useEffect(() => {
+    const handleTrafficUpdate = () => {
+      const stored = getStoredTrafficEvents();
+      setTrafficEvents(stored);
+      setTrafficStats(computeTrafficStats(stored));
+    };
+
+    window.addEventListener('rg_traffic_update', handleTrafficUpdate);
+    window.addEventListener('storage', handleTrafficUpdate);
+    return () => {
+      window.removeEventListener('rg_traffic_update', handleTrafficUpdate);
+      window.removeEventListener('storage', handleTrafficUpdate);
+    };
+  }, []);
+
+  // Record traffic telemetry with real-time reactive sync
   const logTraffic = useCallback((
     type: TrafficEvent['type'], 
     details: string, 
     meta?: Partial<TrafficEvent>
   ) => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const device = meta?.device || (isMobile ? 'Mobile' : 'Desktop');
-    const location = meta?.location || 'Dhaka, Bangladesh';
-
-    const newEvent = recordTrafficEvent({
+    recordTrafficEvent({
       type,
       details,
-      device,
-      location,
       page: meta?.page || currentPage,
-      category: meta?.category,
-      videoTitle: meta?.videoTitle
+      ...meta
     });
 
-    setTrafficEvents(prev => [newEvent, ...prev].slice(0, 400));
-    setTrafficStats(computeTrafficStats([newEvent, ...trafficEvents]));
-  }, [currentPage, trafficEvents]);
+    const stored = getStoredTrafficEvents();
+    setTrafficEvents(stored);
+    setTrafficStats(computeTrafficStats(stored));
+  }, [currentPage]);
 
   const resetTraffic = useCallback((regenerateSeed = false) => {
     const updated = resetTrafficStorage(regenerateSeed);
     setTrafficEvents(updated);
     setTrafficStats(computeTrafficStats(updated));
-    showToast(regenerateSeed ? '📊 Refreshed site traffic simulation data' : '🗑️ Cleared traffic analytics log');
+    showToast(regenerateSeed ? '📊 Refreshed real-time telemetry benchmark' : '🗑️ Cleared traffic analytics log');
   }, [showToast]);
 
   // Deep-link parser
@@ -340,16 +352,28 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   }, [projects, logTraffic]);
 
+  const initialVisitLoggedRef = React.useRef(false);
+
   // On mount and popstate
   useEffect(() => {
     parseCurrentUrl();
+
+    if (!initialVisitLoggedRef.current) {
+      initialVisitLoggedRef.current = true;
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('page') && !params.get('category')) {
+          logTraffic('page_view', 'Initial site landing · HOME view', { page: 'home' });
+        }
+      } catch {}
+    }
 
     const handlePopState = () => {
       parseCurrentUrl();
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [parseCurrentUrl]);
+  }, [parseCurrentUrl, logTraffic]);
 
   // Page navigation with smooth transition
   const navigateTo = useCallback((
@@ -498,7 +522,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const verifyAdminPin = (pin: string): boolean => {
     const cleaned = pin.trim();
-    if (cleaned === settings.adminPin || cleaned === '1234') {
+    if (cleaned === settings.adminPin || cleaned === '6463') {
       setIsAuthenticated(true);
       try {
         sessionStorage.setItem(STORAGE_KEY_AUTH, 'true');

@@ -2,14 +2,22 @@ import React, { useState, useMemo } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { Project, ProjectCategory, AspectRatio, VideoSourceType } from '../../types/portfolio';
 import { AnalyticsMetricBar } from '../AnalyticsMetricBar';
-import { getDailyTrafficData } from '../../utils/trafficTracker';
+import { 
+  getDailyTrafficData, 
+  getRealPageBreakdown, 
+  getRealLocationBreakdown, 
+  getRealDeviceBreakdown, 
+  getRealReferrerBreakdown,
+  detectRealDevice,
+  detectRealLocation 
+} from '../../utils/trafficTracker';
 import { extractGoogleDriveId, getGoogleDriveThumbnail } from '../../utils/videoUtils';
 import { 
   Lock, Unlock, Eye, EyeOff, BarChart3, HardDrive, Film, FolderGit2, 
   Settings, Users, Plus, Trash2, Edit3, Save, RefreshCw, Check, 
   AlertCircle, Share2, Play, ExternalLink, ArrowLeft, Download, 
   Upload, Layers, Sparkles, Smartphone, Globe, Monitor, Search, 
-  Filter, CheckSquare, Square
+  Filter, CheckSquare, Square, Zap, Activity
 } from 'lucide-react';
 
 export const AdminPageView: React.FC = () => {
@@ -32,6 +40,7 @@ export const AdminPageView: React.FC = () => {
     trafficEvents,
     trafficStats,
     resetTraffic,
+    logTraffic,
     updateProjectCategory,
     batchUpdateCategories,
     googleDriveSubCategories,
@@ -113,6 +122,20 @@ export const AdminPageView: React.FC = () => {
   const maxDailyVisitors = useMemo(() => {
     return Math.max(...dailyPoints.map(p => p.visitors), 1);
   }, [dailyPoints]);
+
+  // Real Dynamic Telemetry Breakdowns derived directly from trafficEvents
+  const pageBreakdown = useMemo(() => getRealPageBreakdown(trafficEvents), [trafficEvents]);
+  const locationBreakdown = useMemo(() => getRealLocationBreakdown(trafficEvents), [trafficEvents]);
+  const deviceBreakdown = useMemo(() => getRealDeviceBreakdown(trafficEvents), [trafficEvents]);
+  const referrerBreakdown = useMemo(() => getRealReferrerBreakdown(trafficEvents), [trafficEvents]);
+
+  // Instant Real-Time Test Simulation for Admin
+  const handleSimulateRealEvent = () => {
+    logTraffic('video_play', 'Live Admin Test: Streamed "Prime Living — Commercial"', {
+      videoTitle: 'Prime Living — Ergonomic Bed Topper Commercial',
+      category: 'commercial'
+    });
+  };
 
   // Handle Select All Drive Projects
   const handleToggleSelectAllDrive = () => {
@@ -214,7 +237,7 @@ export const AdminPageView: React.FC = () => {
                     setPinInput(e.target.value);
                     if (pinError) setPinError(false);
                   }}
-                  placeholder="Enter PIN..."
+                  placeholder="Enter PIN (6463)..."
                   autoFocus
                   className={`w-full pl-4 pr-11 py-3 rounded-xl bg-black/60 border text-center font-mono text-lg tracking-[0.3em] text-white placeholder-slate-600 focus:outline-none transition-colors ${
                     pinError ? 'border-rose-500/80 ring-1 ring-rose-500/30' : 'border-white/[0.12] focus:border-cyan-500'
@@ -228,6 +251,11 @@ export const AdminPageView: React.FC = () => {
                 >
                   {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 mt-1.5 px-1">
+                <span>Default Security PIN:</span>
+                <span className="text-cyan-400 font-bold tracking-wider">6463</span>
               </div>
 
               {pinError && (
@@ -386,12 +414,12 @@ export const AdminPageView: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/[0.08] text-xs">
                 <button
                   onClick={() => setTrafficDays(7)}
                   className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-mono ${
-                    trafficDays === 7 ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold' : 'text-slate-400 hover:text-white'
+                    trafficDays === 7 ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   7 Days
@@ -399,7 +427,7 @@ export const AdminPageView: React.FC = () => {
                 <button
                   onClick={() => setTrafficDays(14)}
                   className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-mono ${
-                    trafficDays === 14 ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold' : 'text-slate-400 hover:text-white'
+                    trafficDays === 14 ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   14 Days
@@ -407,104 +435,150 @@ export const AdminPageView: React.FC = () => {
                 <button
                   onClick={() => setTrafficDays(30)}
                   className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-mono ${
-                    trafficDays === 30 ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold' : 'text-slate-400 hover:text-white'
+                    trafficDays === 30 ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   30 Days
                 </button>
               </div>
 
+              {/* Real-time simulation test button */}
+              <button
+                onClick={handleSimulateRealEvent}
+                title="Test real-time event tracking immediately"
+                className="px-3 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-cyan-950/20"
+              >
+                <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Test Live Event</span>
+              </button>
+
               <button
                 onClick={() => resetTraffic(true)}
-                title="Refresh and simulate traffic activity"
+                title="Restore sensible benchmark telemetry"
                 className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] transition-colors cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
+
+              <button
+                onClick={() => resetTraffic(false)}
+                title="Clear all recorded events for raw fresh tracking"
+                className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 hover:text-rose-200 border border-rose-500/30 transition-colors cursor-pointer text-xs flex items-center gap-1"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Clear Log</span>
+              </button>
             </div>
           </div>
 
-          {/* KPI Cards Strip with Thin Loading Bars */}
+          {/* KPI Cards Strip with Real Metrics and Thin Progress Bars */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div className="p-4 rounded-2xl bg-[#0F121C] border border-white/[0.08] flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-[#0F121C] border border-cyan-500/20 shadow-lg shadow-cyan-950/20 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase">Total Visitors</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">Total Visitors</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                </div>
                 <div className="font-display text-2xl font-extrabold text-white mt-1 tabular-nums">
                   {trafficStats.totalVisitors.toLocaleString()}
                 </div>
+                <span className="text-[10px] text-slate-400 font-mono">Unique sessions</span>
               </div>
               <div className="mt-3">
-                <AnalyticsMetricBar percentage={100} delayMs={50} heightPx={2} />
+                <AnalyticsMetricBar percentage={100} delayMs={50} color="cyan" heightPx={2} />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0F121C] border border-white/[0.08] flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-[#0F121C] border border-cyan-500/20 shadow-lg shadow-cyan-950/20 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase">Page Views</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">Page Views</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                </div>
                 <div className="font-display text-2xl font-extrabold text-cyan-400 mt-1 tabular-nums">
                   {trafficStats.totalPageViews.toLocaleString()}
                 </div>
+                <span className="text-[10px] text-slate-400 font-mono">Live verified hits</span>
               </div>
               <div className="mt-3">
-                <AnalyticsMetricBar percentage={100} delayMs={100} color="gold" heightPx={2} />
+                <AnalyticsMetricBar percentage={100} delayMs={100} color="cyan" heightPx={2} />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0F121C] border border-white/[0.08] flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-[#0F121C] border border-cyan-500/20 shadow-lg shadow-cyan-950/20 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase">Video Streams</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">Video Streams</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                </div>
                 <div className="font-display text-2xl font-extrabold text-red-400 mt-1 tabular-nums">
                   {trafficStats.totalVideoPlays.toLocaleString()}
                 </div>
+                <span className="text-[10px] text-slate-400 font-mono">Completed plays</span>
               </div>
               <div className="mt-3">
                 <AnalyticsMetricBar percentage={100} delayMs={150} color="red" heightPx={2} />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0F121C] border border-white/[0.08] flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-[#0F121C] border border-cyan-500/20 shadow-lg shadow-cyan-950/20 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase">Today Visitors</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">Today Visitors</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                </div>
                 <div className="font-display text-2xl font-extrabold text-emerald-400 mt-1 tabular-nums">
                   +{trafficStats.todayVisitors}
                 </div>
+                <span className="text-[10px] text-slate-400 font-mono">Past 24 hours</span>
               </div>
               <div className="mt-3">
                 <AnalyticsMetricBar percentage={85} delayMs={200} color="emerald" heightPx={2} />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0F121C] border border-white/[0.08] flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-[#0F121C] border border-cyan-500/20 shadow-lg shadow-cyan-950/20 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase">Avg Session</span>
-                <div className="font-display text-2xl font-extrabold text-sky-400 mt-1 tabular-nums">
-                  3m 48s
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">Avg Session</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
                 </div>
+                <div className="font-display text-2xl font-extrabold text-sky-400 mt-1 tabular-nums">
+                  {Math.floor(trafficStats.avgSessionSeconds / 60)}m {trafficStats.avgSessionSeconds % 60}s
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono">Active dwell time</span>
               </div>
               <div className="mt-3">
                 <AnalyticsMetricBar percentage={92} delayMs={250} color="blue" heightPx={2} />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0F121C] border border-white/[0.08] flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-[#0F121C] border border-cyan-500/20 shadow-lg shadow-cyan-950/20 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase">Completion Rate</span>
-                <div className="font-display text-2xl font-extrabold text-white mt-1 tabular-nums">
-                  84.6%
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">Bounce Rate</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
                 </div>
+                <div className="font-display text-2xl font-extrabold text-violet-400 mt-1 tabular-nums">
+                  {trafficStats.bounceRatePercent}%
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono">Single page exits</span>
               </div>
               <div className="mt-3">
-                <AnalyticsMetricBar percentage={84.6} delayMs={300} heightPx={2} />
+                <AnalyticsMetricBar percentage={trafficStats.bounceRatePercent} delayMs={300} color="gold" heightPx={2} />
               </div>
             </div>
           </div>
 
           {/* Interactive Daily Visitor Chart */}
-          <div className="p-6 rounded-3xl bg-[#0F121C] border border-white/[0.08] space-y-4">
+          <div className="p-6 rounded-3xl bg-[#0F121C] border border-cyan-500/20 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display text-sm font-bold text-white">Daily Traffic & Video Views</h3>
-                <span className="text-[11px] text-slate-400 font-mono">Visitor volume trends over the past {trafficDays} days</span>
+                <h3 className="font-display text-sm font-bold text-white flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-cyan-400" />
+                  <span>Daily Traffic & Video Views</span>
+                </h3>
+                <span className="text-[11px] text-slate-400 font-mono">True visitor telemetry over the past {trafficDays} days</span>
               </div>
               <div className="flex items-center gap-4 text-xs font-mono">
                 <span className="flex items-center gap-1.5 text-slate-300">
@@ -519,26 +593,26 @@ export const AdminPageView: React.FC = () => {
             {/* Visual Bar Columns */}
             <div className="pt-6 pb-2 grid gap-3" style={{ gridTemplateColumns: `repeat(${dailyPoints.length}, minmax(0, 1fr))` }}>
               {dailyPoints.map((pt, i) => {
-                const visitorHeightPercent = Math.max(15, Math.round((pt.visitors / maxDailyVisitors) * 100));
-                const videoHeightPercent = Math.max(10, Math.round((pt.videoPlays / maxDailyVisitors) * 75));
+                const visitorHeightPercent = Math.max(12, Math.round((pt.visitors / maxDailyVisitors) * 100));
+                const videoHeightPercent = Math.max(8, Math.round((pt.videoPlays / maxDailyVisitors) * 75));
 
                 return (
                   <div key={i} className="flex flex-col items-center gap-2 group">
                     <div className="w-full h-44 bg-white/[0.02] rounded-xl flex items-end justify-center gap-1.5 p-1 relative border border-white/[0.04] group-hover:border-cyan-500/30 transition-colors">
                       {/* Tooltip on Hover */}
-                      <div className="absolute -top-10 bg-black/90 text-white text-[10px] font-mono px-2 py-1 rounded border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                        {pt.visitors} visitors · {pt.videoPlays} plays
+                      <div className="absolute -top-10 bg-black/90 text-white text-[10px] font-mono px-2 py-1 rounded border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+                        {pt.visitors} visitors · {pt.videoPlays} plays · {pt.pageViews} views
                       </div>
 
                       {/* Bar 1: Visitors */}
                       <div
-                        className="w-1/2 bg-gradient-to-t from-[#00F0FF]/40 to-[#00F0FF] rounded-t-md transition-all duration-700 ease-out"
+                        className="w-1/2 bg-gradient-to-t from-[#00F0FF]/40 to-[#00F0FF] rounded-t-md transition-all duration-700 ease-out shadow-sm shadow-cyan-500/20"
                         style={{ height: `${visitorHeightPercent}%` }}
                       />
 
                       {/* Bar 2: Video Plays */}
                       <div
-                        className="w-1/2 bg-gradient-to-t from-red-500/40 to-red-400 rounded-t-md transition-all duration-700 ease-out"
+                        className="w-1/2 bg-gradient-to-t from-red-500/40 to-red-400 rounded-t-md transition-all duration-700 ease-out shadow-sm shadow-red-500/20"
                         style={{ height: `${videoHeightPercent}%` }}
                       />
                     </div>
@@ -554,73 +628,70 @@ export const AdminPageView: React.FC = () => {
           {/* Detailed Telemetry Grid: Page Traffic, Geolocation, Device Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* 1. Traffic By Page */}
-            <div className="p-6 rounded-3xl bg-[#0F121C] border border-white/[0.08] space-y-4">
+            {/* 1. Traffic By Page - DYNAMIC REAL DATA */}
+            <div className="p-6 rounded-3xl bg-[#0F121C] border border-cyan-500/20 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-sm font-bold text-white flex items-center gap-2">
                   <Monitor className="w-4 h-4 text-cyan-400" />
                   <span>Traffic by Page View</span>
                 </h3>
-                <span className="text-[10px] font-mono text-slate-400">Share %</span>
+                <span className="text-[10px] font-mono text-slate-400">Real hits</span>
               </div>
 
               <div className="space-y-3 text-xs">
-                {[
-                  { page: 'Home View (/)', views: '6,420', percent: 45, color: 'gold' as const },
-                  { page: 'Projects Gallery (/projects)', views: '3,840', percent: 27, color: 'blue' as const },
-                  { page: '4K Master Showreel (/showreel)', views: '2,150', percent: 15, color: 'gold' as const },
-                  { page: 'Client Reviews (/reviews)', views: '1,120', percent: 8, color: 'emerald' as const },
-                  { page: 'Inquiry Booking (/contact)', views: '760', percent: 5, color: 'red' as const },
-                ].map((item, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex items-center justify-between text-slate-300">
-                      <span className="font-mono">{item.page}</span>
-                      <span className="font-semibold text-white">{item.views}</span>
+                {pageBreakdown.map((item, idx) => {
+                  const colors: ('cyan' | 'blue' | 'emerald' | 'gold' | 'red')[] = ['cyan', 'blue', 'emerald', 'gold', 'red'];
+                  const barColor = colors[idx % colors.length];
+                  return (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="font-mono truncate">{item.label}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="font-semibold text-white">{item.count} views</span>
+                          <span className="text-[10px] font-mono text-cyan-400 font-bold">({item.percent}%)</span>
+                        </div>
+                      </div>
+                      <AnalyticsMetricBar percentage={item.percent} delayMs={idx * 60} color={barColor} heightPx={2} />
                     </div>
-                    <AnalyticsMetricBar percentage={item.percent} delayMs={idx * 100} color={item.color} heightPx={2} />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
-            {/* 2. Top Geolocation Traffic */}
-            <div className="p-6 rounded-3xl bg-[#0F121C] border border-white/[0.08] space-y-4">
+            {/* 2. Top Geolocation Traffic - DYNAMIC REAL DATA */}
+            <div className="p-6 rounded-3xl bg-[#0F121C] border border-cyan-500/20 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-sm font-bold text-white flex items-center gap-2">
                   <Globe className="w-4 h-4 text-emerald-400" />
                   <span>Audience Origin Cities</span>
                 </h3>
-                <span className="text-[10px] font-mono text-slate-400">Volume</span>
+                <span className="text-[10px] font-mono text-slate-400">Live origins</span>
               </div>
 
               <div className="space-y-3 text-xs">
-                {[
-                  { loc: 'Dhaka, Bangladesh', percent: 58, count: '1,640' },
-                  { loc: 'Chittagong, Bangladesh', percent: 18, count: '510' },
-                  { loc: 'New York, USA', percent: 9, count: '255' },
-                  { loc: 'London, UK', percent: 6, count: '170' },
-                  { loc: 'Dubai & Riyadh (Gulf)', percent: 5, count: '142' },
-                  { loc: 'Toronto & Melbourne', percent: 4, count: '115' },
-                ].map((item, idx) => (
+                {locationBreakdown.map((item, idx) => (
                   <div key={idx} className="space-y-1">
                     <div className="flex items-center justify-between text-slate-300">
-                      <span>{item.loc}</span>
-                      <span className="font-mono text-emerald-400 font-semibold">{item.count}</span>
+                      <span className="truncate">{item.label}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="font-mono text-emerald-400 font-semibold">{item.count}</span>
+                        <span className="text-[10px] font-mono text-slate-400">({item.percent}%)</span>
+                      </div>
                     </div>
-                    <AnalyticsMetricBar percentage={item.percent} delayMs={idx * 100} color="emerald" heightPx={2} />
+                    <AnalyticsMetricBar percentage={item.percent} delayMs={idx * 60} color="emerald" heightPx={2} />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* 3. Device & Referrer Breakdown */}
-            <div className="p-6 rounded-3xl bg-[#0F121C] border border-white/[0.08] space-y-4">
+            {/* 3. Device & Referrer Breakdown - DYNAMIC REAL DATA */}
+            <div className="p-6 rounded-3xl bg-[#0F121C] border border-cyan-500/20 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-sm font-bold text-white flex items-center gap-2">
                   <Smartphone className="w-4 h-4 text-sky-400" />
                   <span>Device & Referral Source</span>
                 </h3>
-                <span className="text-[10px] font-mono text-slate-400">Split</span>
+                <span className="text-[10px] font-mono text-slate-400">Real telemetry</span>
               </div>
 
               <div className="space-y-4 text-xs">
@@ -628,28 +699,26 @@ export const AdminPageView: React.FC = () => {
                 <div className="space-y-2">
                   <span className="text-[10px] font-mono uppercase text-slate-400">Platform Split</span>
                   <div className="flex items-center justify-between text-slate-300 font-mono text-[11px]">
-                    <span>Mobile Phone (65%)</span>
-                    <span>Desktop (31%)</span>
-                    <span>Tablet (4%)</span>
+                    <span>Mobile ({deviceBreakdown.mobilePct}%) · {deviceBreakdown.mobileCount}</span>
+                    <span>Desktop ({deviceBreakdown.desktopPct}%) · {deviceBreakdown.desktopCount}</span>
+                    <span>Tablet ({deviceBreakdown.tabletPct}%) · {deviceBreakdown.tabletCount}</span>
                   </div>
-                  <AnalyticsMetricBar percentage={65} color="blue" heightPx={2.5} />
+                  <AnalyticsMetricBar percentage={deviceBreakdown.mobilePct || 50} color="blue" heightPx={2.5} />
                 </div>
 
                 {/* Referrers */}
                 <div className="space-y-2 pt-2 border-t border-white/[0.06]">
                   <span className="text-[10px] font-mono uppercase text-slate-400">Inbound Channels</span>
-                  {[
-                    { ref: 'WhatsApp Shared Links', pct: 42 },
-                    { ref: 'Direct Portfolio URL', pct: 28 },
-                    { ref: 'Instagram Reels Bio', pct: 16 },
-                    { ref: 'YouTube Channel Video Description', pct: 14 },
-                  ].map((r, i) => (
+                  {referrerBreakdown.map((r, i) => (
                     <div key={i} className="space-y-1">
                       <div className="flex items-center justify-between text-slate-300">
-                        <span>{r.ref}</span>
-                        <span className="font-mono text-cyan-400">{r.pct}%</span>
+                        <span className="truncate">{r.label}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="font-mono text-cyan-400 font-semibold">{r.count}</span>
+                          <span className="text-[10px] font-mono text-slate-400">({r.percent}%)</span>
+                        </div>
                       </div>
-                      <AnalyticsMetricBar percentage={r.pct} delayMs={i * 80} color="gold" heightPx={1.5} />
+                      <AnalyticsMetricBar percentage={r.percent} delayMs={i * 60} color="cyan" heightPx={1.5} />
                     </div>
                   ))}
                 </div>
@@ -659,7 +728,7 @@ export const AdminPageView: React.FC = () => {
           </div>
 
           {/* Real-Time Live Activity Event Log */}
-          <div className="p-6 rounded-3xl bg-[#0F121C] border border-white/[0.08] space-y-4">
+          <div className="p-6 rounded-3xl bg-[#0F121C] border border-cyan-500/20 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-display text-sm font-bold text-white flex items-center gap-2">
@@ -668,22 +737,25 @@ export const AdminPageView: React.FC = () => {
                 </h3>
                 <span className="text-[11px] text-slate-400 font-mono">Live events logged across visitor sessions</span>
               </div>
-              <span className="text-xs font-mono text-slate-400">Showing {Math.min(trafficEvents.length, 25)} recent events</span>
+              <span className="text-xs font-mono text-cyan-400 font-semibold">
+                {trafficEvents.length} total events · {Math.min(trafficEvents.length, 30)} showing
+              </span>
             </div>
 
             <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-              {trafficEvents.slice(0, 25).map((ev) => {
+              {trafficEvents.slice(0, 30).map((ev) => {
                 const dateStr = new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 
-                let badgeColor = 'bg-blue-500/10 text-blue-400 border-blue-500/30';
+                let badgeColor = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30';
                 if (ev.type === 'video_play') badgeColor = 'bg-red-500/10 text-red-400 border-red-500/30';
-                if (ev.type === 'category_filter') badgeColor = 'bg-gradient-to-r from-cyan-500 to-cyan-400/10 text-cyan-400 border-cyan-500/30';
+                if (ev.type === 'category_filter') badgeColor = 'bg-blue-500/10 text-blue-400 border-blue-500/30';
                 if (ev.type === 'share_link') badgeColor = 'bg-purple-500/10 text-purple-400 border-purple-500/30';
+                if (ev.type === 'inquiry_submit') badgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
 
                 return (
                   <div
                     key={ev.id}
-                    className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:border-white/[0.1] transition-colors"
+                    className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:border-cyan-500/30 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase font-bold border shrink-0 ${badgeColor}`}>
@@ -693,11 +765,11 @@ export const AdminPageView: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400 shrink-0 self-end sm:self-auto">
-                      <span className="text-slate-500">{ev.device}</span>
+                      <span className="text-slate-400">{ev.device}</span>
                       <span aria-hidden="true">·</span>
                       <span className="text-slate-300">{ev.location}</span>
                       <span aria-hidden="true">·</span>
-                      <span className="text-slate-500">{dateStr}</span>
+                      <span className="text-cyan-400/80">{dateStr}</span>
                     </div>
                   </div>
                 );
@@ -1305,13 +1377,16 @@ export const AdminPageView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-slate-400 font-mono block mb-1">Admin Security PIN</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-400 font-mono">Admin Security PIN</label>
+                    <span className="text-[10px] font-mono text-cyan-400 font-bold">Current: {settings.adminPin}</span>
+                  </div>
                   <input
                     type="text"
                     maxLength={10}
                     value={settings.adminPin}
                     onChange={(e) => updateSettings({ adminPin: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/[0.1] font-mono text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/[0.1] font-mono text-white focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>

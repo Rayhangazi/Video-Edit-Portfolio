@@ -46,6 +46,10 @@ export interface TrafficEvent {
   videoTitle?: string;
   device: 'Mobile' | 'Desktop' | 'Tablet';
   location: string;
+  sessionId?: string;
+  referrer?: string;
+  browser?: string;
+  durationSeconds?: number;
 }
 
 export interface TrafficStats {
@@ -56,6 +60,8 @@ export interface TrafficStats {
   bounceRatePercent: number;
   todayVisitors: number;
   weeklyVisitors: number;
+  activeNow?: number;
+  uniqueSessions?: number;
 }
 
 export interface SiteSettings {

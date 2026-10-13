@@ -9,7 +9,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   turnaroundHours: '48h',
   clientRetention: '99.4%',
   email: 'rayhangazi3@gmail.com',
-  adminPin: '1234',
+  adminPin: '6463',
   showreelUrl: 'https://drive.google.com/file/d/1o7DhyiEw_fz2DOWCuTbKTjmyciVr28nd/view',
   showreelSource: 'gdrive',
   showreelThumbnailUrl: '/showreel-thumbnail.jpg',
