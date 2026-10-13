@@ -6,6 +6,7 @@ import { Gallery } from './components/Gallery';
 import { ShowreelView } from './components/pages/ShowreelView';
 import { ReviewsView } from './components/pages/ReviewsView';
 import { ContactView } from './components/pages/ContactView';
+import { AdminPageView } from './components/pages/AdminPageView';
 import { Footer } from './components/Footer';
 import { VideoModal } from './components/VideoModal';
 import { AdminCMSModal } from './components/AdminCMSModal';
@@ -40,9 +41,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#090A0F] text-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center font-sans">
-          <div className="w-14 h-14 rounded-2xl bg-[#1A2035] border border-[#E5A93C]/40 flex items-center justify-center mb-5 shadow-lg shadow-[#E5A93C]/10">
-            <Film className="w-6 h-6 text-[#E5A93C]" />
+        <div className="min-h-screen bg-[#050811] text-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center font-sans">
+          <div className="w-14 h-14 rounded-2xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center mb-5 shadow-lg shadow-cyan-400/20">
+            <Film className="w-6 h-6 text-cyan-400" />
           </div>
           <h1 className="text-xl font-bold font-display uppercase tracking-wider mb-2">
             Rayhan Gazi Portfolio
@@ -59,7 +60,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               }
               window.location.reload();
             }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E5A93C] text-black font-semibold text-xs tracking-wider uppercase hover:bg-[#F59E0B] transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold text-xs tracking-wider uppercase hover:from-cyan-400 hover:to-cyan-300 transition-colors cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.4)]"
           >
             <RefreshCw className="w-4 h-4" />
             Reload Portfolio
@@ -81,6 +82,7 @@ const MainContent: React.FC = () => {
       {currentPage === 'showreel' && <ShowreelView />}
       {currentPage === 'reviews' && <ReviewsView />}
       {currentPage === 'contact' && <ContactView />}
+      {currentPage === 'admin' && <AdminPageView />}
     </main>
   );
 };
@@ -98,7 +100,7 @@ export default function App() {
         {/* Dynamic feedback toast for Sharable category / reel buttons */}
         <ToastNotification />
 
-        <div className="min-h-screen bg-[#090A0F] text-[#F8FAFC] flex flex-col font-sans selection:bg-[#E5A93C]/20 selection:text-[#E5A93C]">
+        <div className="min-h-screen bg-[#050811] text-[#F8FAFC] flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-300">
           {/* Navigation Bar */}
           <Navbar />
 

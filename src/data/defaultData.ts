@@ -540,7 +540,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     description: 'Geometric morphing and kinetic logo reveal designed for broadcast television and premium YouTube intros.',
     featured: false,
     year: '2026',
-    accentColor: '#E5A93C'
+    accentColor: '#00F0FF'
   },
 
   // =========================================================================

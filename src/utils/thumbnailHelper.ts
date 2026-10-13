@@ -26,8 +26,8 @@ export function generateCinematicPoster(project: Project): string {
   const width = isVertical ? 720 : 1280;
   const height = isVertical ? 1280 : 720;
   
-  // Custom theme accents
-  const accentColor = project.accentColor || '#E5A93C';
+  // Custom theme accents - Glowing Cyan default
+  const accentColor = project.accentColor && project.accentColor !== '#E5A93C' && project.accentColor !== '#F59E0B' ? project.accentColor : '#00F0FF';
   const clientName = escapeXml(project.client || 'Rayhan Gazi Master Edit');
   const projectTitle = escapeXml(project.title || 'Production Cut');
   const formatTag = isVertical ? '9:16 VERTICAL SOCIAL REEL' : '16:9 4K BROADCAST MASTER';
@@ -40,22 +40,22 @@ export function generateCinematicPoster(project: Project): string {
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#090A0F"/>
-      <stop offset="45%" stop-color="#121624"/>
-      <stop offset="100%" stop-color="#1A2035"/>
+      <stop offset="0%" stop-color="#040810"/>
+      <stop offset="45%" stop-color="#081424"/>
+      <stop offset="100%" stop-color="#0c2038"/>
     </linearGradient>
     <radialGradient id="glowGrad" cx="50%" cy="40%" r="55%">
-      <stop offset="0%" stop-color="${accentColor}" stop-opacity="0.18"/>
-      <stop offset="70%" stop-color="${accentColor}" stop-opacity="0.03"/>
+      <stop offset="0%" stop-color="${accentColor}" stop-opacity="0.25"/>
+      <stop offset="70%" stop-color="${accentColor}" stop-opacity="0.05"/>
       <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="streakGrad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="${accentColor}" stop-opacity="0"/>
-      <stop offset="50%" stop-color="${accentColor}" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="${accentColor}" stop-opacity="0.8"/>
       <stop offset="100%" stop-color="${accentColor}" stop-opacity="0"/>
     </linearGradient>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <circle cx="20" cy="20" r="1" fill="#ffffff" fill-opacity="0.07"/>
+      <circle cx="20" cy="20" r="1" fill="#00f0ff" fill-opacity="0.08"/>
     </pattern>
   </defs>
 

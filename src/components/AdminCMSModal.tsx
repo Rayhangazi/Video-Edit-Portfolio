@@ -54,7 +54,7 @@ export const AdminCMSModal: React.FC = () => {
     description: '',
     featured: false,
     year: '2026',
-    accentColor: '#E5A93C',
+    accentColor: '#00F0FF',
     subCategory: ''
   });
   const [toolsInput, setToolsInput] = useState('Premiere Pro, DaVinci Resolve');
@@ -110,7 +110,7 @@ export const AdminCMSModal: React.FC = () => {
       description: '',
       featured: false,
       year: new Date().getFullYear().toString(),
-      accentColor: '#E5A93C',
+      accentColor: '#00F0FF',
       subCategory: ''
     });
     setToolsInput('Premiere Pro, DaVinci Resolve');
@@ -137,7 +137,7 @@ export const AdminCMSModal: React.FC = () => {
       description: p.description,
       featured: p.featured || false,
       year: p.year,
-      accentColor: p.accentColor || '#E5A93C',
+      accentColor: p.accentColor || '#00F0FF',
       subCategory: p.subCategory || ''
     });
     setToolsInput(p.tools.join(', '));
@@ -257,7 +257,7 @@ export const AdminCMSModal: React.FC = () => {
         {/* Top Header */}
         <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between gap-4 bg-[#090A0F]">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[#E5A93C]/10 text-[#E5A93C]">
+            <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-400/10 text-cyan-400">
               {isAuthenticated ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
             </div>
             <div>
@@ -291,7 +291,7 @@ export const AdminCMSModal: React.FC = () => {
         {/* Not Authenticated: PIN Verification View */}
         {!isAuthenticated ? (
           <div className="p-10 flex flex-col items-center justify-center text-center max-w-md mx-auto my-auto space-y-6">
-            <div className="w-14 h-14 rounded-2xl bg-[#E5A93C]/10 border border-[#E5A93C]/20 text-[#E5A93C] flex items-center justify-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-cyan-500 to-cyan-400/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center">
               <Lock className="w-7 h-7" />
             </div>
 
@@ -316,7 +316,7 @@ export const AdminCMSModal: React.FC = () => {
                     setPinError(false);
                   }}
                   className={`w-full px-4 py-3 rounded-xl bg-[#090A0F] border text-center text-lg tracking-[0.3em] font-mono text-white focus:outline-none transition-colors ${
-                    pinError ? 'border-rose-500' : 'border-white/[0.1] focus:border-[#E5A93C]'
+                    pinError ? 'border-rose-500' : 'border-white/[0.1] focus:border-cyan-500'
                   }`}
                 />
                 {pinError && (
@@ -328,7 +328,7 @@ export const AdminCMSModal: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-[#E5A93C] hover:bg-[#f3b544] text-black font-semibold text-xs uppercase tracking-wider transition-all"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-black font-semibold text-xs uppercase tracking-wider transition-all"
               >
                 Authenticate & Unlock
               </button>
@@ -348,7 +348,7 @@ export const AdminCMSModal: React.FC = () => {
                 }}
                 className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                   activeTab === 'projects'
-                    ? 'bg-[#E5A93C] text-black'
+                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black'
                     : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
                 }`}
               >
@@ -363,7 +363,7 @@ export const AdminCMSModal: React.FC = () => {
                 }}
                 className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                   activeTab === 'testimonials'
-                    ? 'bg-[#E5A93C] text-black'
+                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black'
                     : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
                 }`}
               >
@@ -374,7 +374,7 @@ export const AdminCMSModal: React.FC = () => {
                 onClick={() => setActiveTab('settings')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                   activeTab === 'settings'
-                    ? 'bg-[#E5A93C] text-black'
+                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black'
                     : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
                 }`}
               >
@@ -417,7 +417,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. Aura GT Commercial"
                             value={projectForm.title}
                             onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
 
@@ -429,7 +429,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. Prime Living Bangladesh"
                             value={projectForm.client}
                             onChange={(e) => setProjectForm({ ...projectForm, client: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
                       </div>
@@ -443,7 +443,7 @@ export const AdminCMSModal: React.FC = () => {
                           placeholder="e.g. Honeycomb omor RAW V1.mp4 or T shirt Main 4 5 v1"
                           value={projectForm.originalName}
                           onChange={(e) => setProjectForm({ ...projectForm, originalName: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs font-mono focus:outline-none focus:border-[#E5A93C]"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs font-mono focus:outline-none focus:border-cyan-500"
                         />
                       </div>
 
@@ -460,7 +460,7 @@ export const AdminCMSModal: React.FC = () => {
                                 aspectRatio: cat === 'short_form' ? '9:16' : projectForm.aspectRatio
                               });
                             }}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           >
                             <option value="commercial">Commercial</option>
                             <option value="youtube">YouTube</option>
@@ -474,7 +474,7 @@ export const AdminCMSModal: React.FC = () => {
                           <select
                             value={projectForm.aspectRatio}
                             onChange={(e) => setProjectForm({ ...projectForm, aspectRatio: e.target.value as AspectRatio })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           >
                             <option value="16:9">16:9 Landscape (Standard)</option>
                             <option value="9:16">9:16 Vertical (Reel / Shorts)</option>
@@ -486,7 +486,7 @@ export const AdminCMSModal: React.FC = () => {
                           <select
                             value={projectForm.videoSource}
                             onChange={(e) => setProjectForm({ ...projectForm, videoSource: e.target.value as VideoSourceType })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           >
                             <option value="youtube">YouTube</option>
                             <option value="gdrive">Google Drive</option>
@@ -534,7 +534,7 @@ export const AdminCMSModal: React.FC = () => {
                                 setProjectForm({ ...projectForm, videoSource: detected });
                                 setPreviewTestUrl(projectForm.videoUrl);
                               }}
-                              className="text-[11px] text-[#E5A93C] hover:underline flex items-center gap-1 font-mono"
+                              className="text-[11px] text-cyan-400 hover:underline flex items-center gap-1 font-mono"
                             >
                               <Eye className="w-3 h-3" /> Test Video Stream
                             </button>
@@ -554,7 +554,7 @@ export const AdminCMSModal: React.FC = () => {
                               videoSource: detected
                             });
                           }}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs font-mono focus:outline-none focus:border-[#E5A93C]"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs font-mono focus:outline-none focus:border-cyan-500"
                         />
                       </div>
 
@@ -597,7 +597,7 @@ export const AdminCMSModal: React.FC = () => {
                           placeholder="https://..."
                           value={projectForm.thumbnailUrl}
                           onChange={(e) => setProjectForm({ ...projectForm, thumbnailUrl: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                         />
                       </div>
 
@@ -609,7 +609,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. 0:45 or 12:30"
                             value={projectForm.duration}
                             onChange={(e) => setProjectForm({ ...projectForm, duration: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
 
@@ -619,7 +619,7 @@ export const AdminCMSModal: React.FC = () => {
                             type="text"
                             value={projectForm.year}
                             onChange={(e) => setProjectForm({ ...projectForm, year: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
 
@@ -630,7 +630,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. 3.4M Views · Broadcast TV"
                             value={projectForm.metrics}
                             onChange={(e) => setProjectForm({ ...projectForm, metrics: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
                       </div>
@@ -641,7 +641,7 @@ export const AdminCMSModal: React.FC = () => {
                           type="text"
                           value={toolsInput}
                           onChange={(e) => setToolsInput(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                         />
                       </div>
 
@@ -651,7 +651,7 @@ export const AdminCMSModal: React.FC = () => {
                           rows={3}
                           value={projectForm.description}
                           onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C] resize-none"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500 resize-none"
                         />
                       </div>
 
@@ -668,7 +668,7 @@ export const AdminCMSModal: React.FC = () => {
                         </button>
                         <button
                           type="submit"
-                          className="px-5 py-2 rounded-lg text-xs font-bold text-black bg-[#E5A93C] hover:bg-[#f3b544] flex items-center gap-1.5"
+                          className="px-5 py-2 rounded-lg text-xs font-bold text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 flex items-center gap-1.5"
                         >
                           <Save className="w-3.5 h-3.5" />
                           <span>{isAddingProject ? 'Save Project' : 'Update Project'}</span>
@@ -701,7 +701,7 @@ export const AdminCMSModal: React.FC = () => {
 
                         <button
                           onClick={handleStartAddProject}
-                          className="px-4 py-2 rounded-lg text-xs font-semibold text-black bg-[#E5A93C] hover:bg-[#f3b544] flex items-center gap-1.5 transition-colors"
+                          className="px-4 py-2 rounded-lg text-xs font-semibold text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 flex items-center gap-1.5 transition-colors"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add New Project</span>
@@ -717,9 +717,9 @@ export const AdminCMSModal: React.FC = () => {
                             <div className="flex items-center gap-3 truncate">
                               <div className="w-10 h-10 rounded-lg bg-neutral-800 flex items-center justify-center shrink-0 text-slate-400 font-mono text-xs">
                                 {p.aspectRatio === '9:16' ? (
-                                  <Smartphone className="w-4 h-4 text-[#E5A93C]" />
+                                  <Smartphone className="w-4 h-4 text-cyan-400" />
                                 ) : (
-                                  <Film className="w-4 h-4 text-[#E5A93C]" />
+                                  <Film className="w-4 h-4 text-cyan-400" />
                                 )}
                               </div>
                               <div className="truncate">
@@ -790,7 +790,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. Marcus Sterling"
                             value={testimonialForm.clientName}
                             onChange={(e) => setTestimonialForm({ ...testimonialForm, clientName: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
 
@@ -801,7 +801,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. Creative Director"
                             value={testimonialForm.clientRole}
                             onChange={(e) => setTestimonialForm({ ...testimonialForm, clientRole: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
                       </div>
@@ -814,7 +814,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. Modern Mindset (1.8M Subs)"
                             value={testimonialForm.companyOrChannel}
                             onChange={(e) => setTestimonialForm({ ...testimonialForm, companyOrChannel: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
 
@@ -825,7 +825,7 @@ export const AdminCMSModal: React.FC = () => {
                             placeholder="e.g. +42% Retention & Cannes Shortlist"
                             value={testimonialForm.metricHighlight}
                             onChange={(e) => setTestimonialForm({ ...testimonialForm, metricHighlight: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                            className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                           />
                         </div>
                       </div>
@@ -838,7 +838,7 @@ export const AdminCMSModal: React.FC = () => {
                           placeholder="Client statement..."
                           value={testimonialForm.quote}
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, quote: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C] resize-none"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500 resize-none"
                         />
                       </div>
 
@@ -855,7 +855,7 @@ export const AdminCMSModal: React.FC = () => {
                         </button>
                         <button
                           type="submit"
-                          className="px-5 py-2 rounded-lg text-xs font-bold text-black bg-[#E5A93C] hover:bg-[#f3b544] flex items-center gap-1.5"
+                          className="px-5 py-2 rounded-lg text-xs font-bold text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 flex items-center gap-1.5"
                         >
                           <Save className="w-3.5 h-3.5" />
                           <span>{isAddingTestimonial ? 'Save Testimonial' : 'Update Testimonial'}</span>
@@ -870,7 +870,7 @@ export const AdminCMSModal: React.FC = () => {
                         </span>
                         <button
                           onClick={handleStartAddTestimonial}
-                          className="px-4 py-2 rounded-lg text-xs font-semibold text-black bg-[#E5A93C] hover:bg-[#f3b544] flex items-center gap-1.5 transition-colors"
+                          className="px-4 py-2 rounded-lg text-xs font-semibold text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 flex items-center gap-1.5 transition-colors"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add Testimonial</span>
@@ -887,7 +887,7 @@ export const AdminCMSModal: React.FC = () => {
                               <div className="text-xs font-semibold text-white">
                                 {t.clientName} · <span className="text-slate-400 font-normal">{t.companyOrChannel}</span>
                               </div>
-                              <div className="text-[11px] text-[#E5A93C] font-mono truncate">
+                              <div className="text-[11px] text-cyan-400 font-mono truncate">
                                 {t.metricHighlight}
                               </div>
                             </div>
@@ -941,7 +941,7 @@ export const AdminCMSModal: React.FC = () => {
                           type="text"
                           value={settingsForm.editorName}
                           onChange={(e) => setSettingsForm({ ...settingsForm, editorName: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                         />
                       </div>
 
@@ -951,7 +951,7 @@ export const AdminCMSModal: React.FC = () => {
                           type="email"
                           value={settingsForm.email}
                           onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-[#E5A93C]"
+                          className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyan-500"
                         />
                       </div>
                     </div>
@@ -1034,7 +1034,7 @@ export const AdminCMSModal: React.FC = () => {
                     <div className="pt-2 flex justify-end">
                       <button
                         type="submit"
-                        className="px-5 py-2 rounded-lg text-xs font-bold text-black bg-[#E5A93C] hover:bg-[#f3b544] flex items-center gap-1.5"
+                        className="px-5 py-2 rounded-lg text-xs font-bold text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 flex items-center gap-1.5"
                       >
                         <Save className="w-3.5 h-3.5" />
                         <span>Update Settings</span>
@@ -1089,13 +1089,13 @@ export const AdminCMSModal: React.FC = () => {
                         className="w-full px-3 py-2 rounded-lg bg-[#0F121C] border border-white/[0.1] text-white text-xs font-mono resize-none"
                       />
                       {importStatus && (
-                        <p className="text-xs text-[#E5A93C] font-mono">{importStatus}</p>
+                        <p className="text-xs text-cyan-400 font-mono">{importStatus}</p>
                       )}
                       {importJsonText && (
                         <button
                           type="button"
                           onClick={handleImportJson}
-                          className="px-4 py-2 rounded-lg text-xs font-semibold bg-[#E5A93C] text-black hover:bg-[#f3b544]"
+                          className="px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-black hover:from-cyan-400 hover:to-cyan-300"
                         >
                           Apply Restored Data
                         </button>

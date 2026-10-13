@@ -34,7 +34,29 @@ export interface Testimonial {
   projectReference?: string;
 }
 
-export type AppPage = 'home' | 'projects' | 'showreel' | 'reviews' | 'contact';
+export type AppPage = 'home' | 'projects' | 'showreel' | 'reviews' | 'contact' | 'admin';
+
+export interface TrafficEvent {
+  id: string;
+  timestamp: number;
+  type: 'page_view' | 'video_play' | 'category_filter' | 'share_link' | 'inquiry_submit';
+  page?: AppPage;
+  details: string;
+  category?: string;
+  videoTitle?: string;
+  device: 'Mobile' | 'Desktop' | 'Tablet';
+  location: string;
+}
+
+export interface TrafficStats {
+  totalVisitors: number;
+  totalPageViews: number;
+  totalVideoPlays: number;
+  avgSessionSeconds: number;
+  bounceRatePercent: number;
+  todayVisitors: number;
+  weeklyVisitors: number;
+}
 
 export interface SiteSettings {
   editorName: string;

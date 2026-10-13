@@ -5,11 +5,19 @@
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     --font-display: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+    --cyan-glow: #00F0FF;
+    --cyan-primary: #06B6D4;
+    --cyan-secondary: #22D3EE;
   }
   
   body {
     font-family: var(--font-sans);
-    background-color: #090a0f;
+    background-color: #050811;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, 0.15), transparent),
+      radial-gradient(ellipse 60% 40% at 85% 60%, rgba(6, 182, 212, 0.05), transparent),
+      radial-gradient(ellipse 60% 40% at 15% 85%, rgba(14, 165, 233, 0.04), transparent);
+    background-attachment: fixed;
     color: #f8fafc;
     overflow-x: hidden;
   }
@@ -19,20 +27,64 @@
   }
 }
 
-/* Custom minimalist scrollbar */
+/* Glowing cyan & glass custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090a0f;
+  background: #050811;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2432;
+  background: rgba(6, 182, 212, 0.3);
   border-radius: 3px;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #333a4d;
+  background: rgba(6, 182, 212, 0.6);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(7, 16, 28, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(6, 182, 212, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+.glass-card {
+  background: rgba(8, 19, 34, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(6, 182, 212, 0.16);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(6, 182, 212, 0.45);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 182, 212, 0.2), inset 0 0 12px rgba(6, 182, 212, 0.06);
+}
+
+.glass-pill {
+  background: rgba(6, 182, 212, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
+}
+
+.cyan-glow {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+}
+
+.cyan-glow-lg {
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.45);
+}
+
+.cyan-text-glow {
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.6), 0 0 24px rgba(6, 182, 212, 0.3);
 }
 
 /* Smooth mobile horizontal scroll & touch styling */
@@ -58,4 +110,19 @@
 
 .animate-fade-smooth {
   animation: fadeInSmooth 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cyanPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-cyan-pulse {
+  animation: cyanPulse 4s ease-in-out infinite;
 }

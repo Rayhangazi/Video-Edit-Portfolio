@@ -37,7 +37,7 @@ export const VideoModal: React.FC = () => {
   const embedUrl = getEmbedUrl(activeVideo.videoUrl, activeVideo.source);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-sm sm:backdrop-blur-md transition-opacity duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md transition-opacity duration-300">
       
       {/* Click outside backdrop */}
       <div 
@@ -47,24 +47,24 @@ export const VideoModal: React.FC = () => {
       />
 
       {/* Modal Dialog Card with smooth pop-in animation */}
-      <div className={`relative z-10 w-full bg-[#0F121C] border border-white/[0.12] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh] transform-gpu transition-all duration-300 ease-out animate-in fade-in zoom-in-95 ${
+      <div className={`relative z-10 w-full glass-panel border border-cyan-500/30 rounded-2xl shadow-[0_12px_45px_rgba(0,0,0,0.8),0_0_35px_rgba(6,182,212,0.2)] overflow-hidden flex flex-col max-h-[94vh] transform-gpu transition-all duration-300 ease-out animate-in fade-in zoom-in-95 ${
         isVertical ? 'max-w-md' : 'max-w-5xl'
       }`}>
         
         {/* Header Bar */}
-        <div className="px-4 sm:px-5 py-3 border-b border-white/[0.08] flex items-center justify-between gap-3 bg-[#090A0F]">
+        <div className="px-4 sm:px-5 py-3 border-b border-cyan-500/20 flex items-center justify-between gap-3 bg-[#060D17]/90 backdrop-blur-xl">
           <div className="flex items-center gap-2.5 min-w-0">
             {isVertical ? (
-              <Smartphone className="w-4 h-4 text-[#E5A93C] shrink-0" />
+              <Smartphone className="w-4 h-4 text-cyan-400 shrink-0" />
             ) : (
-              <Film className="w-4 h-4 text-[#E5A93C] shrink-0" />
+              <Film className="w-4 h-4 text-cyan-400 shrink-0" />
             )}
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-400 font-mono shrink-0">
                   {activeVideo.source === 'youtube' ? 'YouTube' : activeVideo.source === 'gdrive' ? 'Google Drive' : 'Direct Stream'}
                 </span>
-                <span className="px-1.5 py-0.2 rounded bg-[#E5A93C]/20 border border-[#E5A93C]/40 text-[#E5A93C] text-[10px] font-mono font-bold shrink-0">
+                <span className="px-1.5 py-0.2 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono font-bold shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.25)]">
                   HD 1080p
                 </span>
                 <span className="text-slate-600 hidden sm:inline">·</span>
@@ -74,7 +74,7 @@ export const VideoModal: React.FC = () => {
               </div>
               {activeVideo.originalName && (
                 <div className="text-[10px] sm:text-[11px] text-slate-400 font-mono truncate mt-0.5">
-                  Raw File: <span className="text-slate-300">{activeVideo.originalName}</span>
+                  Raw File: <span className="text-cyan-300">{activeVideo.originalName}</span>
                 </div>
               )}
             </div>
@@ -95,16 +95,16 @@ export const VideoModal: React.FC = () => {
         }`}>
           {/* Smooth Video Loading State Indicator */}
           {isLoading && (
-            <div className="absolute inset-0 z-20 bg-[#090A0F] flex flex-col items-center justify-center gap-3 transition-opacity duration-300">
+            <div className="absolute inset-0 z-20 bg-[#060D17] flex flex-col items-center justify-center gap-3 transition-opacity duration-300">
               <div className="relative">
-                <Loader2 className="w-8 h-8 text-[#E5A93C] animate-spin" />
-                <div className="absolute inset-0 rounded-full blur-sm bg-[#E5A93C]/20" />
+                <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+                <div className="absolute inset-0 rounded-full blur-sm bg-cyan-400/30" />
               </div>
               <div className="flex flex-col items-center gap-1">
-                <span className="text-xs font-mono text-slate-200 tracking-wider">
+                <span className="text-xs font-mono text-cyan-300 tracking-wider">
                   Loading HD Stream...
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">
+                <span className="text-[10px] font-mono text-slate-400">
                   Buffering master deliverable in 1080p
                 </span>
               </div>
@@ -137,11 +137,11 @@ export const VideoModal: React.FC = () => {
         </div>
 
         {/* Metadata & Project Insights Bar */}
-        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#090A0F]/90 overflow-y-auto">
+        <div className="p-4 sm:p-5 border-t border-cyan-500/20 bg-[#060D17]/95 backdrop-blur-xl overflow-y-auto">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
             
             <div className="space-y-1">
-              <div className="text-xs text-[#E5A93C] font-mono">
+              <div className="text-xs text-cyan-400 font-mono">
                 Client: <span className="text-white font-medium">{activeVideo.client}</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed max-w-2xl line-clamp-3 sm:line-clamp-none">
@@ -149,7 +149,7 @@ export const VideoModal: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex flex-row sm:flex-col sm:items-end justify-between sm:justify-start gap-1.5 shrink-0 text-xs font-mono border-t sm:border-t-0 pt-2 sm:pt-0 border-white/[0.06]">
+            <div className="flex flex-row sm:flex-col sm:items-end justify-between sm:justify-start gap-1.5 shrink-0 text-xs font-mono border-t sm:border-t-0 pt-2 sm:pt-0 border-cyan-500/15">
               {activeVideo.metrics && (
                 <div className="text-emerald-400 font-semibold text-[11px] sm:text-xs">
                   {activeVideo.metrics}

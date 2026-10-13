@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+export type MetricBarColor = 'cyan' | 'blue' | 'emerald' | 'gold' | 'red';
+
 interface AnalyticsMetricBarProps {
   percentage?: number; // 0 to 100 (defaults to 100)
   delayMs?: number; // delay before starting the load animation
-  color?: 'gold' | 'blue' | 'emerald' | 'red';
+  color?: MetricBarColor;
   className?: string;
-  heightPx?: number; // thin height in pixels (default 2px)
+  heightPx?: number; // thin height in pixels (default 2.5px)
 }
 
 export const AnalyticsMetricBar: React.FC<AnalyticsMetricBarProps> = ({
   percentage = 100,
   delayMs = 100,
-  color = 'gold',
+  color = 'cyan',
   className = '',
   heightPx = 2.5
 }) => {
@@ -66,20 +68,22 @@ export const AnalyticsMetricBar: React.FC<AnalyticsMetricBarProps> = ({
     return () => clearTimeout(timer);
   }, [inView, percentage, delayMs]);
 
-  // Gradient themes
-  let gradientClass = 'from-[#E5A93C]/40 via-[#E5A93C] to-[#F59E0B] shadow-[0_0_8px_rgba(229,169,60,0.6)]';
+  // Glowing Cyan & Glass Color Gradient Themes
+  let gradientClass = 'from-cyan-500/40 via-cyan-400 to-[#00F0FF] shadow-[0_0_12px_rgba(0,240,255,0.8)]';
   if (color === 'blue') {
-    gradientClass = 'from-blue-500/40 via-blue-400 to-sky-300 shadow-[0_0_8px_rgba(96,165,250,0.6)]';
+    gradientClass = 'from-blue-500/40 via-blue-400 to-sky-300 shadow-[0_0_10px_rgba(96,165,250,0.6)]';
   } else if (color === 'emerald') {
-    gradientClass = 'from-emerald-500/40 via-emerald-400 to-teal-300 shadow-[0_0_8px_rgba(52,211,153,0.6)]';
+    gradientClass = 'from-emerald-500/40 via-emerald-400 to-teal-300 shadow-[0_0_10px_rgba(52,211,153,0.6)]';
+  } else if (color === 'gold') {
+    gradientClass = 'from-[#E5A93C]/40 via-[#E5A93C] to-[#F59E0B] shadow-[0_0_8px_rgba(229,169,60,0.6)]';
   } else if (color === 'red') {
-    gradientClass = 'from-rose-500/40 via-rose-400 to-amber-400 shadow-[0_0_8px_rgba(244,63,94,0.6)]';
+    gradientClass = 'from-rose-500/40 via-rose-400 to-amber-400 shadow-[0_0_10px_rgba(244,63,94,0.6)]';
   }
 
   return (
     <div
       ref={containerRef}
-      className={`w-full bg-white/[0.08] rounded-full overflow-hidden relative ${className}`}
+      className={`w-full bg-cyan-950/30 border border-cyan-500/10 rounded-full overflow-hidden relative ${className}`}
       style={{ height: `${heightPx}px` }}
       aria-hidden="true"
     >
@@ -99,7 +103,7 @@ interface AnimatedKpiCardProps {
   label: string;
   sublabel?: string;
   percentage?: number;
-  color?: 'gold' | 'blue' | 'emerald' | 'red';
+  color?: MetricBarColor;
   delayMs?: number;
 }
 
@@ -108,7 +112,7 @@ export const AnimatedKpiCard: React.FC<AnimatedKpiCardProps> = ({
   label,
   sublabel,
   percentage = 100,
-  color = 'gold',
+  color = 'cyan',
   delayMs = 0
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -138,10 +142,14 @@ export const AnimatedKpiCard: React.FC<AnimatedKpiCardProps> = ({
           observer.disconnect();
         }
       },
-      { threshold: 0.01, rootMargin: '50px 0px 50px 0px' }
+      {
+        threshold: 0.01,
+        rootMargin: '50px 0px 50px 0px'
+      }
     );
 
     observer.observe(el);
+
     return () => {
       observer.disconnect();
     };
@@ -193,17 +201,17 @@ export const AnimatedKpiCard: React.FC<AnimatedKpiCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col justify-between hover:border-white/[0.12] transition-colors"
+      className="p-4 sm:p-5 rounded-2xl glass-card flex flex-col justify-between group"
     >
       <div>
-        <div className="font-display font-extrabold text-2xl sm:text-4xl text-white tracking-tight font-mono tabular-nums">
+        <div className="font-display font-extrabold text-2xl sm:text-4xl text-white group-hover:text-cyan-300 transition-colors tracking-tight font-mono tabular-nums">
           {displayedValue || value}
         </div>
         <div className="text-xs sm:text-sm text-slate-300 font-medium mt-1">
           {label}
         </div>
         {sublabel && (
-          <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+          <div className="text-[11px] text-slate-400 font-mono mt-0.5">
             {sublabel}
           </div>
         )}
