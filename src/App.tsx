@@ -76,7 +76,7 @@ const MainContent: React.FC = () => {
   const { currentPage } = usePortfolio();
 
   return (
-    <main className="flex-1 animate-in fade-in duration-300">
+    <main className="flex-1 gpu-stabilize">
       {currentPage === 'home' && <HomeView />}
       {currentPage === 'projects' && <Gallery />}
       {currentPage === 'showreel' && <ShowreelView />}

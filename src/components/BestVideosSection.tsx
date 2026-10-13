@@ -17,10 +17,22 @@ export const BestVideoCard: React.FC<BestVideoCardProps> = ({ project, onSelect,
   return (
     <div
       onClick={() => onSelect(project)}
-      className="group relative rounded-2xl overflow-hidden glass-card cursor-pointer transition-all duration-300 hover:-translate-y-1 active:scale-[0.98] flex flex-col justify-between"
+      style={{
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden'
+      }}
+      className="group relative rounded-2xl overflow-hidden glass-card cursor-pointer transition-all duration-300 sm:hover:-translate-y-1 active:scale-[0.98] flex flex-col justify-between gpu-stabilize"
     >
       {/* Media Thumbnail Container with Guaranteed Persistent Loading */}
-      <div className="relative w-full overflow-hidden">
+      <div 
+        className="relative w-full overflow-hidden gpu-stabilize"
+        style={{
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
+        }}
+      >
         <ProjectThumbnail
           project={project}
           bestIndex={index}
@@ -53,9 +65,16 @@ export const BestVideoCard: React.FC<BestVideoCardProps> = ({ project, onSelect,
       </div>
 
       {/* Details with Thin Cyan Loading Bar Underneath */}
-      <div className="p-3.5 sm:p-4 flex flex-col justify-between flex-1">
+      <div className="p-3.5 sm:p-4 flex flex-col justify-between flex-1 gpu-stabilize">
         <div>
-          <h3 className="font-display font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition-colors leading-snug line-clamp-2">
+          <h3 
+            className="font-display font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition-colors leading-snug line-clamp-2 gpu-stabilize"
+            style={{
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden'
+            }}
+          >
             {project.title}
           </h3>
 

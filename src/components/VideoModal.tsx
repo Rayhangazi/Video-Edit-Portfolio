@@ -47,28 +47,35 @@ export const VideoModal: React.FC = () => {
       />
 
       {/* Modal Dialog Card with smooth pop-in animation */}
-      <div className={`relative z-10 w-full glass-panel border border-cyan-500/30 rounded-2xl shadow-[0_12px_45px_rgba(0,0,0,0.8),0_0_35px_rgba(6,182,212,0.2)] overflow-hidden flex flex-col max-h-[94vh] transform-gpu transition-all duration-300 ease-out animate-in fade-in zoom-in-95 ${
-        isVertical ? 'max-w-md' : 'max-w-5xl'
-      }`}>
+      <div 
+        style={{
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
+        }}
+        className={`relative z-10 w-full glass-panel border border-cyan-500/30 rounded-2xl shadow-[0_12px_45px_rgba(0,0,0,0.8),0_0_35px_rgba(6,182,212,0.2)] overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[94vh] transform-gpu transition-all duration-300 ease-out animate-in fade-in zoom-in-95 gpu-stabilize ${
+          isVertical ? 'max-w-md' : 'max-w-5xl'
+        }`}
+      >
         
         {/* Header Bar */}
-        <div className="px-4 sm:px-5 py-3 border-b border-cyan-500/20 flex items-center justify-between gap-3 bg-[#060D17]/90 backdrop-blur-xl">
-          <div className="flex items-center gap-2.5 min-w-0">
+        <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-cyan-500/20 flex items-center justify-between gap-2.5 bg-[#060D17]/90 backdrop-blur-xl gpu-stabilize">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
             {isVertical ? (
               <Smartphone className="w-4 h-4 text-cyan-400 shrink-0" />
             ) : (
               <Film className="w-4 h-4 text-cyan-400 shrink-0" />
             )}
             <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
                 <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-400 font-mono shrink-0">
                   {activeVideo.source === 'youtube' ? 'YouTube' : activeVideo.source === 'gdrive' ? 'Google Drive' : 'Direct Stream'}
                 </span>
-                <span className="px-1.5 py-0.2 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono font-bold shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.25)]">
+                <span className="px-1.5 py-0.2 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[9px] sm:text-[10px] font-mono font-bold shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.25)]">
                   HD 1080p
                 </span>
                 <span className="text-slate-600 hidden sm:inline">·</span>
-                <h3 className="text-xs sm:text-sm font-semibold text-white truncate max-w-[200px] sm:max-w-md">
+                <h3 className="text-xs sm:text-sm font-semibold text-white truncate max-w-[170px] xs:max-w-[220px] sm:max-w-md">
                   {activeVideo.title}
                 </h3>
               </div>
@@ -82,7 +89,7 @@ export const VideoModal: React.FC = () => {
 
           <button
             onClick={closeVideoModal}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all shrink-0 cursor-pointer"
+            className="min-h-[44px] min-w-[44px] p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all shrink-0 cursor-pointer flex items-center justify-center"
             aria-label="Close video player"
           >
             <X className="w-5 h-5" />

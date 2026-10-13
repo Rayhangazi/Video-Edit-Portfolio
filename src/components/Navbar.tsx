@@ -21,19 +21,19 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-[#050B14]/80 border-b border-cyan-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.6),0_1px_15px_rgba(6,182,212,0.12)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-[#050B14]/85 border-b border-cyan-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.6),0_1px_15px_rgba(6,182,212,0.12)] gpu-stabilize">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Brand Zone */}
         <button
           onClick={() => handleNavClick('home')}
-          className="group font-display text-lg sm:text-xl font-extrabold tracking-tight text-white hover:text-cyan-300 transition-colors whitespace-nowrap shrink-0 flex items-center gap-2.5 cursor-pointer"
+          className="group font-display text-base sm:text-xl font-extrabold tracking-tight text-white hover:text-cyan-300 transition-colors whitespace-nowrap shrink-0 flex items-center gap-2 sm:gap-2.5 cursor-pointer gpu-stabilize"
         >
-          <div className="w-8 h-8 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 group-hover:border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)] transition-all">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 group-hover:border-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)] transition-all shrink-0">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
           </div>
-          <span className="tracking-wider">RAYHAN GAZI</span>
-          <span className="text-xs font-mono text-cyan-400/70 hidden sm:inline-block">/ Video Editor</span>
+          <span className="tracking-wider text-sm sm:text-lg font-bold">RAYHAN GAZI</span>
+          <span className="text-[11px] font-mono text-cyan-400/70 hidden sm:inline-block">/ Video Editor</span>
         </button>
 
         {/* Desktop Page Navigation Links */}
@@ -44,7 +44,7 @@ export const Navbar: React.FC = () => {
               <button
                 key={item.page}
                 onClick={() => handleNavClick(item.page)}
-                className={`px-4 py-2 rounded-xl transition-all cursor-pointer whitespace-nowrap font-medium ${
+                className={`px-3.5 lg:px-4 py-2 rounded-xl transition-all cursor-pointer whitespace-nowrap font-medium ${
                   isActive
                     ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold shadow-[0_0_18px_rgba(6,182,212,0.5)]'
                     : 'text-slate-300 hover:text-cyan-200 hover:bg-cyan-500/10'
@@ -57,11 +57,12 @@ export const Navbar: React.FC = () => {
         </nav>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Admin shortcut button */}
           <button
             onClick={() => handleNavClick('admin')}
             title={isAuthenticated ? "Admin Hub Active" : "Open Admin Panel"}
-            className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-medium transition-all border flex items-center gap-1.5 cursor-pointer min-h-[36px] sm:min-h-[40px] ${
               currentPage === 'admin'
                 ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold border-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.5)]'
                 : isAuthenticated 
@@ -72,28 +73,29 @@ export const Navbar: React.FC = () => {
           >
             {isAuthenticated ? (
               <>
-                <SlidersHorizontal className="w-3.5 h-3.5 text-current animate-pulse" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-current shrink-0" />
                 <span className="hidden lg:inline text-[11px] font-mono">Admin Hub</span>
               </>
             ) : (
               <>
-                <Lock className="w-3.5 h-3.5 text-current" />
+                <Lock className="w-3.5 h-3.5 text-current shrink-0" />
                 <span className="hidden lg:inline text-[11px] font-mono">Admin</span>
               </>
             )}
           </button>
 
+          {/* Book Project CTA - responsive on mobile */}
           <button
             onClick={() => handleNavClick('contact')}
-            className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold text-black bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 active:scale-[0.98] transition-all rounded-xl whitespace-nowrap shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.7)] cursor-pointer"
+            className="hidden xs:inline-flex px-3.5 sm:px-5 py-1.5 sm:py-2.5 text-xs font-bold text-black bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 active:scale-[0.98] transition-all rounded-xl whitespace-nowrap shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer min-h-[36px] sm:min-h-[40px] items-center"
           >
             Book Project
           </button>
 
-          {/* Mobile Menu Hamburger */}
+          {/* Mobile Menu Hamburger with ≥ 44px touch target */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl bg-slate-900/50 border border-cyan-500/30 text-cyan-300 hover:text-white cursor-pointer"
+            className="md:hidden p-2.5 rounded-xl bg-slate-900/60 border border-cyan-500/30 text-cyan-300 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -104,7 +106,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-cyan-500/20 bg-[#050B14]/95 backdrop-blur-2xl px-4 py-4 space-y-2 animate-in slide-in-from-top duration-200">
+        <div className="md:hidden border-t border-cyan-500/20 bg-[#050B14]/98 backdrop-blur-2xl px-4 py-5 space-y-2.5 animate-in slide-in-from-top duration-200 shadow-2xl">
           {navItems.map(item => {
             const Icon = item.icon;
             const isActive = currentPage === item.page;
@@ -112,20 +114,39 @@ export const Navbar: React.FC = () => {
               <button
                 key={item.page}
                 onClick={() => handleNavClick(item.page)}
-                className={`w-full px-4 py-3 rounded-xl text-left text-sm font-semibold flex items-center justify-between transition-colors ${
+                className={`w-full px-4 py-3 rounded-xl text-left text-sm font-semibold flex items-center justify-between transition-colors min-h-[48px] ${
                   isActive
                     ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black shadow-lg shadow-cyan-500/30 font-bold'
-                    : 'text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-300'
+                    : 'text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-300 bg-white/[0.02] border border-white/[0.04]'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4 shrink-0" />
                   <span>{item.label}</span>
                 </div>
                 {isActive && <span className="text-[10px] uppercase font-mono tracking-wider font-bold">Active</span>}
               </button>
             );
           })}
+
+          {/* Mobile Drawer Featured Actions */}
+          <div className="pt-3 border-t border-cyan-500/15 space-y-2">
+            <button
+              onClick={() => handleNavClick('contact')}
+              className="w-full py-3.5 rounded-xl text-center text-xs font-bold uppercase tracking-wider text-black bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-2 min-h-[48px]"
+            >
+              <Mail className="w-4 h-4" />
+              <span>Book Commercial Project</span>
+            </button>
+
+            <button
+              onClick={() => handleNavClick('admin')}
+              className="w-full py-2.5 rounded-xl text-center text-xs font-mono text-cyan-300 hover:text-white bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center gap-2 min-h-[44px]"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Admin Hub & Telemetry Portal</span>
+            </button>
+          </div>
         </div>
       )}
     </header>

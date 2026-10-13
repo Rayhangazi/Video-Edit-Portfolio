@@ -1,152 +1,105 @@
-# Rayhan Gazi — Video Editor & Post-Production Portfolio
+# Implementation Plan: Eliminate Text Flickering & Mobile Layout Overhaul
 
-A minimalist, high-impact video editing portfolio for Rayhan Gazi, engineered to showcase commercial, creator, music video, and vertical short-form projects. The platform features an interactive Bento media gallery with cinematic hover states, a multi-source fast video player (YouTube, Google Drive, direct MP4/WebM), authentic client testimonials with performance metrics, an inquiry contact system, and a PIN-secured Content Management System (CMS) for instant portfolio updates.
-
----
-
-## User Review & Critical Decisions
-
-> [!IMPORTANT]
-> The following architectural and design decisions are tailored to your confirmed preferences and video editing industry standards:
-
-- **Confirmed Categories**: Filterable project catalog featuring **Commercials**, **YouTube**, **Music Videos**, and **Short-Form** (9:16 vertical reels/TikToks).
-- **Aesthetic Direction**: Cinematic obsidian minimalism (`#090A0F` deep dark canvas, hairline borders `#1F2430`, muted slate typography, and warm amber/gold focal highlights `#E5A93C`).
-- **Video Source Flexibility**: Unified video modal supporting:
-  1. **YouTube** (automatic ID extraction, privacy-enhanced embeds, auto-generated HQ thumbnails)
-  2. **Google Drive** (preview & direct streaming link conversion)
-  3. **Direct Video URLs / Cloud-hosted MP4/WebM** with native custom HTML5 playback controls
-- **Content Management System (CMS)**: Built-in Admin Dashboard secured by a custom PIN (`default: 1234`, customizable), allowing real-time project creation, edits, deletion, category assignment, video URL testing, testimonial updates, and JSON backup export/import.
-- **Client Inquiry Flow**: Dedicated contact form with project type selector, timeline, budget range, and immediate submission response.
+Fix all text flickering/jitter across the application and execute a complete mobile-first responsive overhaul so Rayhan Gazi's portfolio renders smoothly, crisply, and without layout flaws on any mobile screen.
 
 ---
 
-## 1. Overview & Core Concept
+## 1. Root Cause Analysis
 
-- **What It Does**: Provides video creators, directors, brands, and marketing agencies with a rapid, lag-free showroom of Rayhan Gazi’s video editing work. Prospective clients can filter by format (commercials, YouTube edits, music videos, 9:16 vertical reels), watch high-definition videos instantly without navigating away, review verified client testimonials, and book projects through a streamlined inquiry form.
-- **Target Audience**: YouTubers, commercial creative directors, brand marketers, music producers, and agencies seeking high-retention video editors and colorists.
-- **Key Value**: Replaces clumsy link trees or laggy video drives with an editorial, high-prestige digital showroom that proves editing mastery, retention metrics, and client reliability.
+### A. Text Flickering Causes
+1. **Double Transition & Animation Conflicts**:
+   - `App.tsx` wraps `<main>` in `animate-in fade-in duration-300`.
+   - Simultaneously, `CoolPageTransition.tsx` mounts a full-screen overlay during navigation with `animate-in fade-in`, causing double-render opacity transitions where text visibly flashes and snaps between alpha levels.
+2. **Subpixel Font Shifting on Transform/Hover**:
+   - Project cards, buttons, and KPI boxes apply CSS hover transforms (`hover:-translate-y-1`, `group-hover:scale-105`) without 3D acceleration or backface-visibility containment. In Chromium and WebKit, this causes typography to alternate between subpixel antialiasing and grayscale rendering, producing a jarring visual "shake" or flicker.
+   - Text elements lacking `transform-gpu` or `backface-visibility: hidden` trigger layout recalculations and repaint flashes during scroll and mouse movement.
+3. **Live Telemetry & Ping Redraw Cycles**:
+   - In `AdminPageView.tsx`, pulsing and pinging badges (`animate-ping`, `animate-pulse`) trigger repaints on adjacent typography containers without layer isolation (`isolate transform-gpu`).
 
----
-
-## 2. User Experience & Visual Design
-
-### Key User Flows
-
-1. **First Impression & Hero Showreel**: Visitors land on an architectural split-screen hero: Rayhan Gazi's positioning statement on the left with stats ("180M+ Total Views", "450+ Videos Delivered", "48h Fast Turnaround"), and a featured cinematic showreel preview on the right with a 1-click "Play Showreel" modal trigger.
-2. **Interactive Portfolio Gallery**:
-   - Clean category switcher: *All Projects*, *Commercials*, *YouTube*, *Music Videos*, *Short-Form*.
-   - Bento-style layout featuring dynamic cards: 16:9 widescreen cards for commercials/YouTube alongside vertical 9:16 cards for TikTok/Reels.
-   - Hover micro-interactions: Smooth image zoom, metadata reveal (runtime, pacing style, tools used like Premiere Pro/After Effects/DaVinci Resolve), and an animated play indicator.
-3. **Universal Video Player Lightbox**:
-   - Clicking any project opens a sleek cinema modal with backdrop blur.
-   - Handles aspect ratio automatically: 16:9 landscape vs. 9:16 vertical reel viewport.
-   - Shows project context: client/channel, Rayhan’s role (Offline Editor, Colorist, Motion Graphics), and retention highlights.
-4. **Client Social Proof & Testimonials**:
-   - Curated cards highlighting quantifiable outcomes (e.g. "+34% Average Retention Rate", "2.4M organic YouTube views", "Delivered 12 episodes under tight deadlines").
-   - Includes client avatars, company/channel handles, and verified project links.
-5. **Direct Client Inquiry & Contact Form**:
-   - Input fields: Name, Email, Project Category, Estimated Budget, Timeline, and Project Link / Details.
-   - Live client-side validation with instant visual confirmation and mailto backup.
-6. **Built-in Admin CMS (PIN-Secured)**:
-   - Discreet "Admin CMS" access in footer or header action.
-   - PIN-protected authentication modal.
-   - Complete project manager: Add new project, edit existing projects, upload/paste custom thumbnail URLs, test video URLs with live preview, update client testimonials, and export/import portfolio data in JSON format for permanent backups.
-
-### Visual Identity & Theme Tokens
-
-- **Palette**:
-  - Neutral Canvas (60%): `#090A0F` (Deep Obsidian Cinema Black) and `#0F121C` (Subtle Structural Surface).
-  - Structural Hairlines & Dividers (30%): `rgba(255, 255, 255, 0.08)` and `#1F2432`.
-  - Focal Accents (10%): Warm Amber / Film Gold (`#F59E0B` / `#E5A93C`) and Electric Cyan Glow (`#38BDF8`) for playback scrubber and active states.
-  - Text Hierarchy: High-contrast pure white `#F8FAFC` for headlines, muted slate `#94A3B8` for body copy, and `#64748B` for metadata.
-- **Typography**:
-  - Display & Headings: `Plus Jakarta Sans` / `Outfit` (Bold architectural geometry with tight tracking).
-  - Body & Form Controls: `Plus Jakarta Sans` / `DM Sans` (Clean, highly legible line height `1.6`).
-  - Numbers & Metrics: Tabular figures (`tabular-nums font-mono`) for runtime, views, and turnaround stats.
-- **Layout Restraint**:
-  - Zero-pill metadata rule: Category and runtime tags displayed as quiet inline typography with dot separators (`Commercial · 0:45 · Color Grade`), never rounded static pill enclosures.
-  - No fake AI jargon, no arbitrary telemetry bars, and no broken external images.
+### B. Mobile Layout Breakpoints & Pain Points
+1. **Navigation Bar & Mobile Drawer**:
+   - On small screens (< 380px), title badges and action controls crowd together; mobile menu dropdown needs clean touch padding (≥ 44px targets) and backdrop blur without scroll locks or clipping.
+2. **Hero Section on Mobile**:
+   - Headline sizing (`text-4xl sm:text-5xl md:text-6xl`) can cause awkward wrapping on 360px–390px screens.
+   - Action buttons need mobile-friendly full-width or auto-flex stacking.
+   - 4-column KPI strip below the hero needs 2x2 grid math with safe padding so metric labels don't clip.
+3. **Gallery, Category Filters & Subcategories**:
+   - Category selector tabs wrap into jagged multi-line blocks on phones unless formatted as a smooth horizontal scrolling pill rail (`overflow-x-auto no-scrollbar`).
+   - Share buttons, search inputs, and subcategory chips need touch-first single-column stacking on mobile.
+4. **Project Cards**:
+   - Project cards on mobile must be optimized for single-column presentation (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`).
+   - Video thumbnail containers (16:9 and vertical 9:16) need explicit aspect ratio preservation and touch-safe interaction states without sticky hover effects on touch devices (`@media (hover: hover)`).
+5. **Video Playback Modal**:
+   - On mobile phones, modal padding and fixed height can clip the close button or bottom controls; requires safe-area padding (`pb-safe`) and fluid responsive scaling.
+6. **Admin Hub on Mobile**:
+   - Tab buttons and date-range controls require horizontal swipe rails.
+   - Daily chart needs responsive column scaling or horizontal scroll containment so bars don't collapse.
+   - Event activity feed cards need mobile card-wrap layouts instead of table-like horizontal overflow.
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
+## 2. Proposed Changes
 
-- **Multi-Source Video Engine**:
-  - *Chosen Approach*: Unified video player adapter that detects YouTube URLs (extracting IDs and embedding with privacy mode), Google Drive links (transforming `/view` or `/open` URLs into clean `/preview` embeds), and direct media URLs (rendering native HTML5 video with controls).
-  - *Why*: Video editors keep footage across YouTube, Drive client folders, and direct MP4 clips. The portfolio must play all three without breaking.
-- **Built-in LocalStorage CMS with Import/Export Backup**:
-  - *Chosen Approach*: Reactive local persistence initialized with high-quality default projects, fully editable via a PIN-locked modal, paired with 1-click JSON backup export and import.
-  - *Why*: Instant, zero-friction client updates without waiting for external database provisioning or ongoing hosting bills, while guaranteeing total portability and safe restore.
-- **Aspect Ratio Awareness for Short-Form Content**:
-  - *Chosen Approach*: Dynamic lightbox modal dimensions adapting between landscape 16:9 and vertical 9:16 based on the project type.
-  - *Why*: Short-form (Reels/TikTok/Shorts) look awkward when letterboxed into landscape players. A dedicated phone-frame modal delivers the authentic mobile viewing experience.
+### Phase 1: CSS & Font Rendering Stabilization (Anti-Flicker)
+- **`src/index.css`**:
+  - Add global `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;` to `:root` and `body`.
+  - Add universal utility `.gpu-stabilize`: `transform: translateZ(0); backface-visibility: hidden; perspective: 1000px; will-change: transform;` to lock typography during hover transforms.
+  - Fix keyframe opacity ranges in `fadeInSmooth` and `cyanPulse` to prevent 0-to-1 alpha flashing.
+  - Disable sticky desktop hover transforms on touch devices with `@media (hover: none)`.
+
+### Phase 2: Page Transitions & Component Anti-Flicker Fixes
+- **`src/components/CoolPageTransition.tsx` & `src/App.tsx`**:
+  - Remove duplicate fade-in animations on `<main>` so only one coordinated transition executes.
+  - Ensure `CoolPageTransition` uses fixed layer isolation with `will-change: opacity` and `pointer-events-none` so underlying text never flashes during mounting/unmounting.
+- **`src/components/Hero.tsx`**:
+  - Apply `transform-gpu backface-hidden` to headline, kicker, and director credentials.
+  - Stabilize pulsing live dot using isolated pseudo-elements to avoid layout repaints.
+- **`src/components/Gallery.tsx`**:
+  - Add `transform-gpu backface-hidden` to `ProjectCard` title, client name, and duration badges.
+  - Scope card hover transforms so text stays rock-solid during mouseenter and mouseleave.
+- **`src/components/pages/AdminPageView.tsx`**:
+  - Isolate live indicators (`animate-ping`) into independent composite layers (`isolate transform-gpu`) so ticker updates do not flicker table text or chart headers.
+
+### Phase 3: Mobile Layout Overhaul
+- **`src/components/Navbar.tsx`**:
+  - Redesign mobile navigation bar: brand title truncation safeguard, compact live badge, and high-contrast hamburger toggle (≥ 44px touch target).
+  - Enhance mobile drawer menu with smooth glassmorphism, responsive item spacing, and touch-friendly direct page links.
+- **`src/components/Hero.tsx`**:
+  - Make typography fluid: `text-3xl xs:text-4xl sm:text-5xl lg:text-6xl` with tightened tracking.
+  - Ensure CTA buttons stack gracefully (`flex-col sm:flex-row w-full sm:w-auto`).
+  - Format KPI metric cards for mobile: compact 2-column grid (`grid-cols-2 lg:grid-cols-4`) with clear padding and no text overlap.
+- **`src/components/Gallery.tsx`**:
+  - Category selector: add mobile horizontal swipe rail (`flex overflow-x-auto no-scrollbar gap-2 pb-2`) with active glowing cyan states.
+  - Subcategory chips and search filter: stack search bar and category share buttons cleanly on screens < 640px.
+  - Project cards grid: responsive 1-column on mobile (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), mobile-optimized badge sizing and title typography.
+- **`src/components/VideoModal.tsx`**:
+  - Mobile full-width responsive dialog with top safe-area close button (`top-3 right-3 p-2.5 touch-target`).
+  - Fluid video aspect ratio wrapper (`aspect-video` / vertical `aspect-[9/16]`) fitting within mobile viewport without clipping.
+- **`src/components/pages/AdminPageView.tsx`**:
+  - Admin tabs and date selector: responsive horizontal scrolling rail.
+  - Daily traffic chart: minimum width with responsive scroll container so daily bars remain legible on small screens.
+  - Telemetry breakdown cards: single-column stack on mobile with full-width progress bars.
+  - Real-time activity stream: mobile card layout showing event type, title, location, and timestamp without clipping.
+- **`src/components/pages/ShowreelView.tsx`, `ReviewsView.tsx`, `ContactView.tsx`**:
+  - Mobile audit for container padding (`px-4 sm:px-6 lg:px-8`), form field touch targets, and responsive typography.
 
 ---
 
-## 4. Technical Architecture & Data Strategy
+## 3. Verification & Testing Plan
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        RAYHAN GAZI PORTFOLIO                           │
-│                                                                        │
-│  ┌──────────────────────┐  ┌────────────────────────────────────────┐  │
-│  │   Top Bar Contract   │  │ Brand: "RAYHAN GAZI" — Video Editor    │  │
-│  │    (1-Line, 3-Zone)  │  │ Nav: Works · Showreel · Proof · Contact │  │
-│  │                      │  │ Action: "Get in Touch" / "Admin CMS"    │  │
-│  └──────────────────────┘  └────────────────────────────────────────┘  │
-│                                                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ Hero Split Section: Typography + Stats + Featured Showreel Reel  │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ Bento Works Gallery: Category Filter Buttons                     │  │
-│  │ (Commercials · YouTube · Music Videos · Short-Form)              │  │
-│  │ ┌────────────────────────┐  ┌──────────────────────────────────┐ │  │
-│  │ │ 16:9 Wide Showcase     │  │ 9:16 Vertical Reel Cards         │ │  │
-│  │ │ Hover Zoom + Play Icon │  │ Dynamic Aspect Ratio Cards       │ │  │
-│  │ └────────────────────────┘  └──────────────────────────────────┘ │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                                                        │
-│  ┌──────────────────────┐  ┌────────────────────────────────────────┐  │
-│  │ Client Testimonials  │  │ Client Quotes + Metrics + Channel Badges│  │
-│  └──────────────────────┘  └────────────────────────────────────────┘  │
-│                                                                        │
-│  ┌──────────────────────┐  ┌────────────────────────────────────────┐  │
-│  │ Direct Contact Form  │  │ Name · Email · Budget · Scope · Submit │  │
-│  └──────────────────────┘  └────────────────────────────────────────┘  │
-│                                                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ Universal Modal Layer: Video Player Lightbox / PIN Admin CMS     │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-### Data Model & State Entities
-
-- **`Project`**:
-  - `id`: string
-  - `title`: string
-  - `client`: string
-  - `category`: `'commercial'` | `'youtube'` | `'music_video'` | `'short_form'`
-  - `aspectRatio`: `'16:9'` | `'9:16'`
-  - `videoSource`: `'youtube'` | `'gdrive'` | `'direct'`
-  - `videoUrl`: string
-  - `thumbnailUrl`: string
-  - `duration`: string (e.g. `'1:15'`)
-  - `tools`: string[] (e.g. `['Premiere Pro', 'DaVinci Resolve', 'After Effects']`)
-  - `metrics`: string (e.g. `'4.2M Views · +42% Retention'`)
-  - `description`: string
-  - `featured`: boolean
-- **`Testimonial`**:
-  - `id`: string
-  - `clientName`: string
-  - `clientRole`: string
-  - `companyOrChannel`: string
-  - `avatarUrl`: string
-  - `metricHighlight`: string
-  - `quote`: string
-- **`CMSState`**:
-  - Authenticated session with PIN verification.
-  - Active editing state with full CRUD operations.
-  - One-click JSON data export and import for seamless multi-device updates.
+1. **Anti-Flicker Verification**:
+   - Navigate between Home, Projects, Showreel, Reviews, Contact, and Admin repeatedly — verify zero text flashing or opacity stutter during transitions.
+   - Hover and scroll vigorously over project cards and metric cards — verify typography remains razor-sharp with no subpixel jump or blur shifts.
+   - Observe Admin traffic stream and chart — verify ping indicators and counter updates do not cause adjacent text jitter.
+2. **Mobile Viewport Testing**:
+   - Test responsive widths: 360px (compact Android), 390px (iPhone 12/13/14), 414px (iPhone Plus/Max), 768px (iPad/tablet).
+   - Verify:
+     - Navbar hamburger opens cleanly, links navigate without overlap.
+     - Hero CTA buttons and KPI cards fit comfortably without horizontal scrollbar on body.
+     - Gallery category tabs can be scrolled horizontally with finger swipe.
+     - Project cards display thumbnail, title, client, and tools cleanly on mobile screens.
+     - Video modal opens cleanly with fully visible video player and easily tappable close button.
+     - Admin panel charts and tables adapt to mobile screens without breaking viewport.
+3. **Build & Lint Verification**:
+   - Run `npm run lint` (`tsc --noEmit`) to ensure 0 TypeScript errors.
+   - Run `npm run build` (`vite build`) to verify clean production compilation.

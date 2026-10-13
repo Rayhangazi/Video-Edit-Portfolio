@@ -8,8 +8,15 @@
     --cyan-glow: #00F0FF;
     --cyan-primary: #06B6D4;
     --cyan-secondary: #22D3EE;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     font-family: var(--font-sans);
     background-color: #050811;
@@ -20,11 +27,26 @@
     background-attachment: fixed;
     color: #f8fafc;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+}
+
+/* Hardware-Accelerated Anti-Flicker Utility */
+.gpu-stabilize {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
 }
 
 /* Glowing cyan & glass custom scrollbar */
@@ -45,27 +67,43 @@
   box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
 }
 
-/* Glassmorphism Classes */
+/* Glassmorphism Classes with subpixel stabilization */
 .glass-panel {
-  background: rgba(7, 16, 28, 0.65);
+  background: rgba(7, 16, 28, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(6, 182, 212, 0.18);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .glass-card {
-  background: rgba(8, 19, 34, 0.6);
+  background: rgba(8, 19, 34, 0.65);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(6, 182, 212, 0.16);
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
 }
 
-.glass-card:hover {
-  border-color: rgba(6, 182, 212, 0.45);
-  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 182, 212, 0.2), inset 0 0 12px rgba(6, 182, 212, 0.06);
+@media (hover: hover) {
+  .glass-card:hover {
+    border-color: rgba(6, 182, 212, 0.45);
+    box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 182, 212, 0.2), inset 0 0 12px rgba(6, 182, 212, 0.06);
+  }
+}
+
+/* On touch devices, prevent sticky hover transforms */
+@media (hover: none) {
+  .glass-card:hover {
+    transform: none !important;
+  }
 }
 
 .glass-pill {
@@ -87,7 +125,7 @@
   text-shadow: 0 0 12px rgba(0, 240, 255, 0.6), 0 0 24px rgba(6, 182, 212, 0.3);
 }
 
-/* Smooth mobile horizontal scroll & touch styling */
+/* Mobile utilities */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -97,10 +135,19 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+}
+
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top, 1rem));
+}
+
+/* Stabilized Keyframe Animations */
 @keyframes fadeInSmooth {
   from {
-    opacity: 0;
-    transform: translateY(6px);
+    opacity: 0.2;
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -109,20 +156,33 @@
 }
 
 .animate-fade-smooth {
-  animation: fadeInSmooth 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInSmooth 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes cyanPulse {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 0.5;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.05);
+    opacity: 0.9;
+    transform: scale(1.04);
   }
 }
 
 .animate-cyan-pulse {
   animation: cyanPulse 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1s ease-in-out infinite;
 }

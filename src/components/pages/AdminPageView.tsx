@@ -300,7 +300,10 @@ export const AdminPageView: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/[0.08]">
         <div>
           <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase text-cyan-400 tracking-wider mb-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="relative flex h-2 w-2 isolate shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
             <span>Authenticated Admin Session · RG Multimedia</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -590,38 +593,43 @@ export const AdminPageView: React.FC = () => {
               </div>
             </div>
 
-            {/* Visual Bar Columns */}
-            <div className="pt-6 pb-2 grid gap-3" style={{ gridTemplateColumns: `repeat(${dailyPoints.length}, minmax(0, 1fr))` }}>
-              {dailyPoints.map((pt, i) => {
-                const visitorHeightPercent = Math.max(12, Math.round((pt.visitors / maxDailyVisitors) * 100));
-                const videoHeightPercent = Math.max(8, Math.round((pt.videoPlays / maxDailyVisitors) * 75));
+            {/* Visual Bar Columns - Mobile horizontal scrollable with min-width */}
+            <div className="overflow-x-auto no-scrollbar -mx-2 px-2 pb-2">
+              <div 
+                className="pt-6 pb-2 grid gap-3 min-w-[480px] sm:min-w-0" 
+                style={{ gridTemplateColumns: `repeat(${dailyPoints.length}, minmax(0, 1fr))` }}
+              >
+                {dailyPoints.map((pt, i) => {
+                  const visitorHeightPercent = Math.max(12, Math.round((pt.visitors / maxDailyVisitors) * 100));
+                  const videoHeightPercent = Math.max(8, Math.round((pt.videoPlays / maxDailyVisitors) * 75));
 
-                return (
-                  <div key={i} className="flex flex-col items-center gap-2 group">
-                    <div className="w-full h-44 bg-white/[0.02] rounded-xl flex items-end justify-center gap-1.5 p-1 relative border border-white/[0.04] group-hover:border-cyan-500/30 transition-colors">
-                      {/* Tooltip on Hover */}
-                      <div className="absolute -top-10 bg-black/90 text-white text-[10px] font-mono px-2 py-1 rounded border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
-                        {pt.visitors} visitors · {pt.videoPlays} plays · {pt.pageViews} views
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-2 group gpu-stabilize">
+                      <div className="w-full h-44 bg-white/[0.02] rounded-xl flex items-end justify-center gap-1.5 p-1 relative border border-white/[0.04] group-hover:border-cyan-500/30 transition-colors">
+                        {/* Tooltip on Hover */}
+                        <div className="absolute -top-10 bg-black/90 text-white text-[10px] font-mono px-2 py-1 rounded border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+                          {pt.visitors} visitors · {pt.videoPlays} plays · {pt.pageViews} views
+                        </div>
+
+                        {/* Bar 1: Visitors */}
+                        <div
+                          className="w-1/2 bg-gradient-to-t from-[#00F0FF]/40 to-[#00F0FF] rounded-t-md transition-all duration-700 ease-out shadow-sm shadow-cyan-500/20"
+                          style={{ height: `${visitorHeightPercent}%` }}
+                        />
+
+                        {/* Bar 2: Video Plays */}
+                        <div
+                          className="w-1/2 bg-gradient-to-t from-red-500/40 to-red-400 rounded-t-md transition-all duration-700 ease-out shadow-sm shadow-red-500/20"
+                          style={{ height: `${videoHeightPercent}%` }}
+                        />
                       </div>
-
-                      {/* Bar 1: Visitors */}
-                      <div
-                        className="w-1/2 bg-gradient-to-t from-[#00F0FF]/40 to-[#00F0FF] rounded-t-md transition-all duration-700 ease-out shadow-sm shadow-cyan-500/20"
-                        style={{ height: `${visitorHeightPercent}%` }}
-                      />
-
-                      {/* Bar 2: Video Plays */}
-                      <div
-                        className="w-1/2 bg-gradient-to-t from-red-500/40 to-red-400 rounded-t-md transition-all duration-700 ease-out shadow-sm shadow-red-500/20"
-                        style={{ height: `${videoHeightPercent}%` }}
-                      />
+                      <span className="text-[10px] font-mono text-slate-400 text-center truncate w-full">
+                        {pt.dateLabel}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-mono text-slate-400 text-center truncate w-full">
-                      {pt.dateLabel}
-                    </span>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -731,8 +739,11 @@ export const AdminPageView: React.FC = () => {
           <div className="p-6 rounded-3xl bg-[#0F121C] border border-cyan-500/20 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display text-sm font-bold text-white flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <h3 className="font-display text-sm font-bold text-white flex items-center gap-2 gpu-stabilize">
+                  <span className="relative flex h-2.5 w-2.5 isolate shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                  </span>
                   <span>Real-Time Visitor Activity Stream</span>
                 </h3>
                 <span className="text-[11px] text-slate-400 font-mono">Live events logged across visitor sessions</span>
@@ -755,7 +766,12 @@ export const AdminPageView: React.FC = () => {
                 return (
                   <div
                     key={ev.id}
-                    className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:border-cyan-500/30 transition-colors"
+                    style={{
+                      transform: 'translateZ(0)',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden'
+                    }}
+                    className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:border-cyan-500/30 transition-colors gpu-stabilize"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase font-bold border shrink-0 ${badgeColor}`}>

@@ -43,7 +43,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden'
       }}
-      className={`group relative rounded-2xl overflow-hidden glass-card cursor-pointer transition-all duration-300 hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between ${
+      className={`group relative rounded-2xl overflow-hidden glass-card cursor-pointer transition-all duration-300 sm:hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between gpu-stabilize ${
         isHerbal
           ? 'border-emerald-500/30 hover:border-emerald-400/60 shadow-emerald-950/20'
           : 'border-cyan-500/20 hover:border-cyan-400/50 shadow-black/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)]'
@@ -51,7 +51,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
     >
       {/* Media Thumbnail Container with Guaranteed Persistent Loading */}
       <div 
-        className="relative w-full overflow-hidden"
+        className="relative w-full overflow-hidden gpu-stabilize"
         style={{
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -74,9 +74,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
         </div>
 
         {/* Badges on Thumbnail */}
-        <div className="absolute top-3 inset-x-3 flex items-center justify-between text-xs pointer-events-none">
+        <div className="absolute top-2.5 inset-x-2.5 sm:top-3 sm:inset-x-3 flex items-center justify-between text-xs pointer-events-none">
           <div className="flex items-center gap-1.5">
-            <span className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] tracking-wider uppercase border shadow-sm ${
+            <span className={`px-2 py-0.5 rounded font-mono font-bold text-[9px] sm:text-[10px] tracking-wider uppercase border shadow-sm ${
               isHerbal 
                 ? 'bg-black/85 text-emerald-300 border-emerald-500/40' 
                 : 'bg-black/85 text-cyan-300 border-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.2)]'
@@ -86,7 +86,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className={`px-1.5 py-0.5 rounded font-mono font-bold text-[10px] tracking-wider border shadow-sm ${
+            <span className={`px-1.5 py-0.5 rounded font-mono font-bold text-[9px] sm:text-[10px] tracking-wider border shadow-sm ${
               isHerbal
                 ? 'bg-black/80 text-emerald-300 border-emerald-500/30'
                 : 'bg-black/80 text-cyan-300 border-cyan-500/30'
@@ -94,11 +94,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
               HD 1080p
             </span>
             {isShortForm && (
-              <span className="px-2 py-0.5 rounded bg-cyan-400 text-black font-bold text-[10px] uppercase tracking-wider">
+              <span className="px-1.5 sm:px-2 py-0.5 rounded bg-cyan-400 text-black font-bold text-[9px] sm:text-[10px] uppercase tracking-wider">
                 9:16
               </span>
             )}
-            <span className="px-2 py-0.5 rounded bg-black/70 backdrop-blur-md font-mono text-[11px] tabular-nums border border-white/10 text-white">
+            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-black/70 backdrop-blur-md font-mono text-[10px] sm:text-[11px] tabular-nums border border-white/10 text-white">
               {project.duration}
             </span>
           </div>
@@ -106,10 +106,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
       </div>
 
       {/* Card Content & Details */}
-      <div className="p-5 flex flex-col flex-1 justify-between">
+      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gpu-stabilize">
         <div>
           {/* Metadata */}
-          <div className="flex items-center gap-2 text-xs text-slate-400 mb-2 font-mono">
+          <div className="flex items-center gap-2 text-[11px] sm:text-xs text-slate-400 mb-1.5 sm:mb-2 font-mono">
             <span className={`font-sans font-semibold ${isHerbal ? 'text-emerald-400' : 'text-cyan-400'}`}>
               {getCategoryLabel(project.category)}
             </span>
@@ -120,9 +120,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
           </div>
 
           {/* Project Title */}
-          <h3 className={`font-display font-bold text-base sm:text-lg text-white transition-colors leading-snug ${
-            isHerbal ? 'group-hover:text-emerald-400' : 'group-hover:text-cyan-300'
-          }`}>
+          <h3 
+            className={`font-display font-bold text-sm sm:text-base lg:text-lg text-white transition-colors leading-snug gpu-stabilize ${
+              isHerbal ? 'group-hover:text-emerald-400' : 'group-hover:text-cyan-300'
+            }`}
+            style={{
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden'
+            }}
+          >
             {project.title}
           </h3>
 
@@ -356,9 +363,9 @@ export const Gallery: React.FC = () => {
       <div className="pt-8 border-t border-cyan-500/15 space-y-6">
         
         {/* Header & Share Category Callout */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
           <div>
-            <div className="text-xs uppercase tracking-widest text-cyan-400 font-semibold mb-2 drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]">
+            <div className="text-xs uppercase tracking-widest text-cyan-400 font-semibold mb-1 sm:mb-2 drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]">
               Curated Client Showcase
             </div>
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
@@ -370,23 +377,23 @@ export const Gallery: React.FC = () => {
           </div>
 
           {/* Prominent Share Category Action Bar */}
-          <div className="flex flex-wrap items-center gap-2.5 p-1.5 rounded-2xl glass-panel self-start lg:self-auto shadow-lg">
+          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl glass-panel self-start sm:self-auto shadow-lg w-full sm:w-auto">
             <button
               onClick={handleShareCurrentCategory}
-              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 text-black text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+              className="flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 text-black text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.4)] min-h-[40px]"
               title="Copy shareable link for currently active category"
             >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>Share This Category</span>
+              <Share2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">Share Category</span>
             </button>
 
             <button
               onClick={handleShareWhatsAppCurrentCategory}
-              className="px-3 py-2 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer min-h-[40px]"
               title="Share category directly on WhatsApp"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">WhatsApp</span>
+              <MessageCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>WhatsApp</span>
             </button>
           </div>
         </div>
@@ -402,15 +409,15 @@ export const Gallery: React.FC = () => {
             </div>
             <button
               onClick={() => handleSelectCategory('all')}
-              className="px-3 py-1 rounded-lg bg-black/50 hover:bg-black/70 text-cyan-300 font-medium text-xs border border-cyan-500/30 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-black/50 hover:bg-black/70 text-cyan-300 font-medium text-xs border border-cyan-500/30 transition-colors cursor-pointer shrink-0"
             >
-              View All Categories
+              View All
             </button>
           </div>
         )}
 
-        {/* Master Category Filter Tabs */}
-        <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
+        {/* Master Category Filter Tabs - Smooth horizontal touch swipe rail */}
+        <div className="flex overflow-x-auto gap-2 pb-2 pt-1 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => handleSelectCategory('all')}
             className={`px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
@@ -486,7 +493,7 @@ export const Gallery: React.FC = () => {
             <AnalyticsMetricBar percentage={100} delayMs={100} color="cyan" heightPx={2} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {commercialProjects.map(p => (
               <ProjectCard 
                 key={p.id} 
@@ -510,7 +517,7 @@ export const Gallery: React.FC = () => {
             <AnalyticsMetricBar percentage={100} delayMs={100} color="red" heightPx={2} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {youtubeProjects.map(p => (
               <ProjectCard 
                 key={p.id} 
@@ -534,7 +541,7 @@ export const Gallery: React.FC = () => {
             <AnalyticsMetricBar percentage={100} delayMs={100} color="emerald" heightPx={2} />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {shortFormProjects.map(p => (
               <ProjectCard 
                 key={p.id} 
@@ -572,11 +579,11 @@ export const Gallery: React.FC = () => {
               )}
             </div>
 
-            {/* Subcategory Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            {/* Subcategory Pills - Mobile horizontal swipe rail with smooth no-scrollbar */}
+            <div className="flex overflow-x-auto gap-1.5 text-xs no-scrollbar pb-1.5 pt-0.5 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
               <button
                 onClick={() => setDriveFilter('all')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] whitespace-nowrap transition-colors cursor-pointer ${
                   driveFilter === 'all'
                     ? 'bg-blue-500 text-white font-bold'
                     : 'bg-white/[0.04] text-slate-400 hover:text-white'
@@ -586,7 +593,7 @@ export const Gallery: React.FC = () => {
               </button>
               <button
                 onClick={() => setDriveFilter('clothing')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] whitespace-nowrap transition-colors cursor-pointer ${
                   driveFilter === 'clothing'
                     ? 'bg-blue-500 text-white font-bold'
                     : 'bg-white/[0.04] text-slate-400 hover:text-white'
@@ -596,7 +603,7 @@ export const Gallery: React.FC = () => {
               </button>
               <button
                 onClick={() => setDriveFilter('bedding')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] whitespace-nowrap transition-colors cursor-pointer ${
                   driveFilter === 'bedding'
                     ? 'bg-blue-500 text-white font-bold'
                     : 'bg-white/[0.04] text-slate-400 hover:text-white'
@@ -606,7 +613,7 @@ export const Gallery: React.FC = () => {
               </button>
               <button
                 onClick={() => setDriveFilter('skit')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] whitespace-nowrap transition-colors cursor-pointer ${
                   driveFilter === 'skit'
                     ? 'bg-blue-500 text-white font-bold'
                     : 'bg-white/[0.04] text-slate-400 hover:text-white'
@@ -616,7 +623,7 @@ export const Gallery: React.FC = () => {
               </button>
               <button
                 onClick={() => setDriveFilter('herbal')}
-                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-mono text-[11px] whitespace-nowrap transition-colors cursor-pointer ${
                   driveFilter === 'herbal'
                     ? 'bg-emerald-500 text-white font-bold'
                     : 'bg-white/[0.04] text-emerald-400 hover:text-emerald-300'
@@ -628,7 +635,7 @@ export const Gallery: React.FC = () => {
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {displayedDriveProjects.map(p => (
               <ProjectCard 
                 key={p.id} 
@@ -663,7 +670,7 @@ export const Gallery: React.FC = () => {
               <AnalyticsMetricBar percentage={100} delayMs={100} color="red" heightPx={2} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
               {youtubeProjects.map(p => (
                 <ProjectCard 
                   key={p.id} 
@@ -699,7 +706,7 @@ export const Gallery: React.FC = () => {
               <AnalyticsMetricBar percentage={100} delayMs={100} color="blue" heightPx={2} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
               {displayedDriveProjects.map(p => (
                 <ProjectCard 
                   key={p.id} 

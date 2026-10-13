@@ -45,7 +45,7 @@ export const ContactSection: React.FC = () => {
 
   return (
     <section id="contact" className="py-20 sm:py-24 border-b border-cyan-500/15 relative">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
@@ -114,7 +114,7 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Column: Inquiry Form */}
           <div className="lg:col-span-7">
-            <div className="p-8 sm:p-10 rounded-2xl glass-panel shadow-2xl">
+            <div className="p-5 sm:p-8 md:p-10 rounded-2xl glass-panel shadow-2xl">
               
               {isSubmitted ? (
                 <div className="py-12 text-center space-y-4">
