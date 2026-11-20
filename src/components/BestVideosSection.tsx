@@ -3,7 +3,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { Project } from '../types/portfolio';
 import { AnalyticsMetricBar } from './AnalyticsMetricBar';
 import { ProjectThumbnail } from './ProjectThumbnail';
-import { Play, Star, ChevronRight, Sparkles } from 'lucide-react';
+import { Play, Star, ChevronRight } from 'lucide-react';
 
 interface BestVideoCardProps {
   project: Project;
@@ -16,13 +16,22 @@ export const BestVideoCard: React.FC<BestVideoCardProps> = ({ project, onSelect,
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(project)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(project);
+        }
+      }}
+      aria-label={`Play ${project.title}`}
       style={{
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden'
       }}
-      className="group relative rounded-2xl overflow-hidden glass-card cursor-pointer transition-all duration-300 sm:hover:-translate-y-1 active:scale-[0.98] flex flex-col justify-between gpu-stabilize"
+      className="group relative rounded-2xl overflow-hidden glass-card cursor-pointer transition-all duration-300 sm:hover:-translate-y-1 active:scale-[0.98] flex flex-col justify-between shrink-0 w-[82vw] max-w-[300px] sm:w-auto sm:max-w-none snap-start gpu-stabilize"
     >
       {/* Media Thumbnail Container with Guaranteed Persistent Loading */}
       <div 
@@ -36,6 +45,7 @@ export const BestVideoCard: React.FC<BestVideoCardProps> = ({ project, onSelect,
         <ProjectThumbnail
           project={project}
           bestIndex={index}
+          priority
           aspectClassName="aspect-video sm:aspect-[16/10]"
           alt={project.title}
         />
@@ -80,7 +90,7 @@ export const BestVideoCard: React.FC<BestVideoCardProps> = ({ project, onSelect,
 
           {project.originalName && (
             <p className="text-[10px] text-slate-400 font-mono tracking-tight mt-1 truncate flex items-center gap-1">
-              <span className="text-cyan-400 uppercase text-[8px] px-1 py-0.2 rounded bg-cyan-950/40 border border-cyan-500/20">RAW</span>
+              <span className="text-cyan-400 uppercase text-[8px] px-1 py-0.5 rounded bg-cyan-950/40 border border-cyan-500/20">RAW</span>
               <span className="text-slate-400 truncate">{project.originalName}</span>
             </p>
           )}
@@ -131,7 +141,7 @@ export const BestVideosSection: React.FC<{ showSubtitle?: boolean }> = ({ showSu
             <Star className="w-3 h-3 fill-cyan-400 text-cyan-400" />
             <span>Editor&apos;s Best Cuts</span>
           </div>
-          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white text-balance">
             Best Video Releases
           </h2>
           {showSubtitle && (
@@ -148,8 +158,8 @@ export const BestVideosSection: React.FC<{ showSubtitle?: boolean }> = ({ showSu
         </div>
       </div>
 
-      {/* Horizontal Carousel / Grid of Best 5 Releases */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5">
+      {/* Horizontal Snap Carousel on Mobile, 2/5-Column Grid on Tablet & Desktop */}
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-2 -mx-4 px-4 no-scrollbar sm:mx-0 sm:px-0 sm:pb-0 sm:overflow-visible sm:grid sm:grid-cols-2 lg:grid-cols-5 sm:gap-5">
         {bestVideoProjects.map((project, idx) => (
           <BestVideoCard
             key={project.id}

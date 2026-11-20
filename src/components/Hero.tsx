@@ -23,14 +23,13 @@ export const Hero: React.FC = () => {
           {/* Left Column: Typographic Hierarchy */}
           <div className="lg:col-span-7 flex flex-col justify-center gpu-stabilize">
             
-            {/* Glowing cyan kicker */}
+            {/* Clean typographic kicker */}
             <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-widest text-cyan-400 font-semibold mb-3 sm:mb-4">
-              <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00F0FF] animate-pulse shrink-0 isolate" />
               <span className="drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] truncate">Post-Production · Commercials · Dhaka, BD</span>
             </div>
 
             {/* Oversized architectural headline with GPU anti-flicker */}
-            <h1 className="font-display text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12] sm:leading-[1.08] mb-4 sm:mb-6 gpu-stabilize">
+            <h1 className="font-display text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12] sm:leading-[1.08] mb-4 sm:mb-6 text-balance gpu-stabilize">
               Turning raw footage into{' '}
               <span 
                 className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-[#00F0FF] to-sky-300 drop-shadow-[0_0_20px_rgba(6,182,212,0.4)]"
@@ -91,12 +90,21 @@ export const Hero: React.FC = () => {
               
               {/* Media Container with Permanent High-Res Thumbnail */}
               <div 
+                role="button"
+                tabIndex={0}
                 onClick={openShowreelVideo}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openShowreelVideo();
+                  }
+                }}
+                aria-label="Play Rayhan Gazi 2026 Master Showreel"
                 className="relative cursor-pointer aspect-video sm:aspect-[16/10] lg:aspect-[4/3] overflow-hidden bg-[#060D17]"
               >
                 {/* Fallback film gradient */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#040812] via-[#081525] to-[#0d223a] flex flex-col items-center justify-center p-6 text-center pointer-events-none">
-                  <Film className="w-8 h-8 text-cyan-500/40 animate-pulse mb-2" />
+                  <Film className="w-8 h-8 text-cyan-500/40 mb-2" />
                 </div>
 
                 {/* Real Showreel Thumbnail Image */}
@@ -105,6 +113,7 @@ export const Hero: React.FC = () => {
                   alt="Rayhan Gazi — Master Director & Editing Showreel"
                   loading="eager"
                   decoding="async"
+                  referrerPolicy="no-referrer"
                   className="absolute inset-0 w-full h-full object-cover opacity-100 pointer-events-none select-none"
                   style={{
                     transform: 'translateZ(0)',
@@ -113,10 +122,12 @@ export const Hero: React.FC = () => {
                   }}
                   onError={(e) => {
                     const target = e.currentTarget;
-                    if (!target.src.endsWith('/showreel-thumbnail.jpg')) {
-                      target.src = '/showreel-thumbnail.jpg';
-                    } else if (!target.src.endsWith('/og-cover.jpg')) {
-                      target.src = '/og-cover.jpg';
+                    const fallback1 = resolveAssetUrl('showreel-thumbnail.jpg');
+                    const fallback2 = resolveAssetUrl('og-cover.jpg');
+                    if (!target.src.endsWith('showreel-thumbnail.jpg')) {
+                      target.src = fallback1;
+                    } else if (!target.src.endsWith('og-cover.jpg')) {
+                      target.src = fallback2;
                     }
                   }}
                 />

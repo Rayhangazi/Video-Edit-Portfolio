@@ -71,8 +71,7 @@ export function getEmbedUrl(url: string, source: VideoSourceType): string {
   if (source === 'youtube') {
     const ytId = extractYouTubeId(trimmed);
     if (ytId) {
-      // &vq=hd1080&hd=1 requests highest available HD definition
-      return `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&vq=hd1080&hd=1`;
+      return `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
     }
     return trimmed;
   }
@@ -90,6 +89,93 @@ export function getEmbedUrl(url: string, source: VideoSourceType): string {
   }
   
   return trimmed;
+}
+
+/**
+ * Resolves a clean external URL for opening a video directly in a new browser tab
+ */
+export function getDirectWatchUrl(url: string, source: VideoSourceType): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+
+  if (source === 'youtube') {
+    const ytId = extractYouTubeId(trimmed);
+    if (ytId) {
+      return `https://www.youtube.com/watch?v=${ytId}`;
+    }
+    return trimmed;
+  }
+
+  if (source === 'gdrive') {
+    const driveId = extractGoogleDriveId(trimmed);
+    if (driveId) {
+      return `https://drive.google.com/file/d/${driveId}/view`;
+    }
+    return trimmed;
+  }
+
+  return trimmed;
+}
+
+/**
+ * Builds a clean, canonical shareable portfolio URL that works on both GitHub Pages (/Video-Edit-Portfolio/) and preview hosts
+ */
+export function buildPortfolioUrl(params?: Record<string, string | undefined>): string {
+  if (typeof window === 'undefined') return '';
+  const cleanPathname = window.location.pathname.replace(/\/index\.html$/i, '/');
+  const baseUrl = `${window.location.origin}${cleanPathname}`;
+  if (!params) return baseUrl;
+
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') {
+      searchParams.set(key, value);
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+}
+
+/**
+ * Builds an external WhatsApp share URL safe for anchor hrefs
+ */
+export function buildWhatsAppShareUrl(text: string): string {
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+}
+
+/**
+ * Copies text to clipboard with automatic fallback for iframes and restricted browsers
+ */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  if (!text) return false;
+
+  if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through to legacy textarea copy fallback
+    }
+  }
+
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'fixed';
+    textArea.style.top = '-9999px';
+    textArea.style.left = '-9999px';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return copied;
+  } catch {
+    return false;
+  }
 }
 
 /**

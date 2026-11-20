@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Project, ProjectCategory } from '../types/portfolio';
-import { getYouTubeThumbnail, getGoogleDriveThumbnail } from '../utils/videoUtils';
+import { 
+  getDirectWatchUrl, 
+  buildPortfolioUrl, 
+  buildWhatsAppShareUrl 
+} from '../utils/videoUtils';
 import { BestVideosSection } from './BestVideosSection';
 import { AnalyticsMetricBar } from './AnalyticsMetricBar';
 import { ProjectThumbnail } from './ProjectThumbnail';
-import { Play, Youtube, HardDrive, Smartphone, Film, Search, X, Sparkles, Leaf, Star, ChevronRight, Share2, MessageCircle, Check, Filter } from 'lucide-react';
+import { Play, Youtube, HardDrive, Smartphone, Film, Search, X, Sparkles, Share2, MessageCircle, ExternalLink } from 'lucide-react';
 
 // =========================================================================
 // PROJECT CARD
@@ -17,13 +21,9 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare }) => {
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const ytThumb = project.videoSource === 'youtube' ? getYouTubeThumbnail(project.videoUrl) : null;
-  const driveThumb = project.videoSource === 'gdrive' ? getGoogleDriveThumbnail(project.videoUrl) : null;
-  const displayImage = project.thumbnailUrl || ytThumb || driveThumb;
-
   const isShortForm = project.aspectRatio === '9:16' || project.category === 'short_form';
   const isHerbal = project.tools.includes('Herbal Formula') || project.title.toLowerCase().includes('herbal');
+  const directWatchUrl = getDirectWatchUrl(project.videoUrl, project.videoSource);
 
   const getCategoryLabel = (cat: ProjectCategory) => {
     switch (cat) {
@@ -37,7 +37,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(project)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(project);
+        }
+      }}
+      aria-label={`Play ${project.title}`}
       style={{
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
@@ -136,7 +145,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
           {/* Original raw project name */}
           {project.originalName && (
             <p className="text-[11px] text-slate-400 font-mono tracking-tight mt-1 mb-2.5 truncate flex items-center gap-1.5">
-              <span className="text-cyan-400 uppercase text-[9px] px-1 py-0.2 rounded bg-cyan-950/40 border border-cyan-500/20">RAW</span>
+              <span className="text-cyan-400 uppercase text-[9px] px-1 py-0.5 rounded bg-cyan-950/40 border border-cyan-500/20">RAW</span>
               <span className="text-slate-400 truncate">{project.originalName}</span>
             </p>
           )}
@@ -151,7 +160,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
         <div className="pt-3 border-t border-cyan-500/15 space-y-2">
           <div className="flex items-center justify-between text-xs">
             {project.metrics ? (
-              <span className="text-slate-300 font-medium font-mono text-[11px] truncate max-w-[170px] sm:max-w-[200px]">
+              <span className="text-slate-300 font-medium font-mono text-[11px] truncate max-w-[150px] sm:max-w-[180px]">
                 {project.metrics}
               </span>
             ) : (
@@ -160,9 +169,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
               </span>
             )}
 
-            <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Direct External Watch Link */}
+              {directWatchUrl && (
+                <a
+                  href={directWatchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  title={project.videoSource === 'youtube' ? 'Open on YouTube' : 'Open on Google Drive'}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors cursor-pointer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+
               {/* Quick Share Reel Button */}
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onShare(project);
@@ -173,7 +197,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onShare })
                 <Share2 className="w-3.5 h-3.5" />
               </button>
 
-              <span className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-0.5 transition-transform ${
+              <span className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-0.5 transition-transform ml-1 ${
                 isHerbal ? 'text-emerald-400' : 'text-cyan-400'
               }`}>
                 Watch <Play className="w-2.5 h-2.5 fill-current" />
@@ -259,12 +283,23 @@ export const Gallery: React.FC = () => {
 
   // Top level category filter
   type MainCategoryFilter = 'all' | 'commercial' | 'youtube' | 'short_form' | 'gdrive';
-  const [mainFilter, setMainFilter] = useState<MainCategoryFilter>(() => {
-    if (activeCategory === 'commercial') return 'commercial';
-    if (activeCategory === 'youtube') return 'youtube';
-    if (activeCategory === 'short_form') return 'short_form';
+  const resolveCategoryToFilter = (cat: string | null | undefined): MainCategoryFilter => {
+    if (cat === 'commercial') return 'commercial';
+    if (cat === 'youtube') return 'youtube';
+    if (cat === 'short_form') return 'short_form';
+    if (cat === 'gdrive') return 'gdrive';
     return 'all';
-  });
+  };
+
+  const [mainFilter, setMainFilter] = useState<MainCategoryFilter>(() =>
+    resolveCategoryToFilter(sharedCategoryNotice || activeCategory)
+  );
+
+  // Sync mainFilter whenever activeCategory or sharedCategoryNotice updates (e.g., from Footer links, HomeView cards, or browser Back/Forward)
+  useEffect(() => {
+    const target = resolveCategoryToFilter(sharedCategoryNotice || activeCategory);
+    setMainFilter(target);
+  }, [activeCategory, sharedCategoryNotice]);
 
   // Google Drive subcategory filter
   type DriveFilterType = 
@@ -285,14 +320,20 @@ export const Gallery: React.FC = () => {
   // Handle category change
   const handleSelectCategory = (cat: MainCategoryFilter) => {
     setMainFilter(cat);
-    if (cat === 'all') {
-      setActiveCategory('all');
-    } else if (cat === 'gdrive') {
-      setActiveCategory('all');
-    } else {
-      setActiveCategory(cat as ProjectCategory);
-    }
+    setActiveCategory(cat);
     clearSharedCategoryNotice();
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('page', 'projects');
+      if (cat && cat !== 'all') {
+        url.searchParams.set('category', cat);
+      } else {
+        url.searchParams.delete('category');
+      }
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      // Ignore History API errors
+    }
   };
 
   // Filtered drive projects
@@ -332,26 +373,24 @@ export const Gallery: React.FC = () => {
   const shortFormProjects = projects.filter(p => p.category === 'short_form' || p.aspectRatio === '9:16');
 
   // Share active category helper
-  const handleShareCurrentCategory = () => {
-    let catId = mainFilter;
-    let label = 'Complete Showcase';
-    if (mainFilter === 'commercial') label = 'Commercials & Brand Ads';
-    if (mainFilter === 'youtube') label = 'YouTube & Retention Cuts';
-    if (mainFilter === 'short_form') label = '9:16 Short-Form Reels';
-    if (mainFilter === 'gdrive') label = 'Google Drive Client Demos';
-    shareCategory(catId, label);
+  const getActiveCategoryLabel = () => {
+    if (mainFilter === 'commercial') return 'Commercials & Brand Ads';
+    if (mainFilter === 'youtube') return 'YouTube & Retention Cuts';
+    if (mainFilter === 'short_form') return '9:16 Short-Form Reels';
+    if (mainFilter === 'gdrive') return 'Google Drive Client Demos';
+    return 'Complete Showcase';
   };
 
-  const handleShareWhatsAppCurrentCategory = () => {
-    let label = 'Portfolio';
-    if (mainFilter === 'commercial') label = 'Commercials & Brand Ads';
-    if (mainFilter === 'youtube') label = 'YouTube & Retention Cuts';
-    if (mainFilter === 'short_form') label = '9:16 Short-Form Reels';
-    if (mainFilter === 'gdrive') label = 'Google Drive Demos';
-    const url = `${window.location.origin}${window.location.pathname}?page=projects&category=${mainFilter}`;
-    const text = encodeURIComponent(`Check out Rayhan Gazi's ${label}: ${url}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+  const handleShareCurrentCategory = () => {
+    shareCategory(mainFilter, getActiveCategoryLabel());
   };
+
+  const whatsappCategoryShareUrl = buildWhatsAppShareUrl(
+    `Check out Rayhan Gazi's ${getActiveCategoryLabel()}: ${buildPortfolioUrl({
+      page: 'projects',
+      category: mainFilter !== 'all' ? mainFilter : undefined
+    })}`
+  );
 
   return (
     <section id="works" className="py-12 sm:py-16 space-y-16 sm:space-y-20 max-w-7xl mx-auto px-4 sm:px-6">
@@ -379,6 +418,7 @@ export const Gallery: React.FC = () => {
           {/* Prominent Share Category Action Bar */}
           <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl glass-panel self-start sm:self-auto shadow-lg w-full sm:w-auto">
             <button
+              type="button"
               onClick={handleShareCurrentCategory}
               className="flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 text-black text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.4)] min-h-[40px]"
               title="Copy shareable link for currently active category"
@@ -387,14 +427,16 @@ export const Gallery: React.FC = () => {
               <span className="whitespace-nowrap">Share Category</span>
             </button>
 
-            <button
-              onClick={handleShareWhatsAppCurrentCategory}
+            <a
+              href={whatsappCategoryShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-3.5 py-2.5 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer min-h-[40px]"
               title="Share category directly on WhatsApp"
             >
               <MessageCircle className="w-3.5 h-3.5 shrink-0" />
               <span>WhatsApp</span>
-            </button>
+            </a>
           </div>
         </div>
 

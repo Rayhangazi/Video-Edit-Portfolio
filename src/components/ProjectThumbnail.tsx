@@ -12,6 +12,7 @@ interface ProjectThumbnailProps {
   className?: string;
   aspectClassName?: string;
   alt?: string;
+  priority?: boolean;
 }
 
 export const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
@@ -19,7 +20,8 @@ export const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   bestIndex,
   className = '',
   aspectClassName = 'aspect-video',
-  alt
+  alt,
+  priority = false
 }) => {
   const currentProjectIdRef = useRef(project.id);
 
@@ -111,8 +113,9 @@ export const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         <img
           src={currentSrc}
           alt={alt || project.title}
-          loading="eager"
+          loading={priority ? 'eager' : 'lazy'}
           decoding="async"
+          referrerPolicy="no-referrer"
           onLoad={handleLoad}
           onError={handleError}
           className={`absolute inset-0 w-full h-full object-cover pointer-events-none select-none transition-opacity duration-200 ${

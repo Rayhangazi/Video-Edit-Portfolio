@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Project, Testimonial, ProjectCategory, AspectRatio, VideoSourceType } from '../types/portfolio';
 import { detectVideoSource, getEmbedUrl, isValidVideoUrl } from '../utils/videoUtils';
+import { ConfirmActionButton } from './ConfirmActionButton';
 import { 
-  X, Lock, Unlock, Plus, Edit2, Trash2, Save, Download, Upload, 
+  X, Lock, Unlock, Plus, Edit2, Trash2, Save, Download, 
   RotateCcw, Eye, Check, AlertCircle, Film, Smartphone, Sparkles, Youtube
 } from 'lucide-react';
 
@@ -72,11 +73,29 @@ export const AdminCMSModal: React.FC = () => {
     projectReference: ''
   });
 
-  // Settings form state
+  // Settings form state (kept in sync whenever global settings change, e.g. reset/import)
   const [settingsForm, setSettingsForm] = useState(settings);
   const [settingsSaved, setSettingsSaved] = useState(false);
   const [importJsonText, setImportJsonText] = useState('');
   const [importStatus, setImportStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSettingsForm(settings);
+  }, [settings]);
+
+  // Close on Escape key & lock background scroll while open
+  useEffect(() => {
+    if (!isAdminOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeAdminModal();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isAdminOpen, closeAdminModal]);
 
   if (!isAdminOpen) return null;
 
@@ -247,12 +266,17 @@ export const AdminCMSModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="admin-cms-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200"
+    >
       
       {/* Click outside to close */}
-      <div className="absolute inset-0 cursor-pointer" onClick={closeAdminModal} />
+      <div className="absolute inset-0 cursor-pointer" onClick={closeAdminModal} aria-hidden="true" />
 
-      <div className="relative z-10 w-full max-w-4xl bg-[#0F121C] border border-white/[0.12] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative z-10 w-full max-w-4xl bg-[#0F121C] border border-white/[0.12] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
         
         {/* Top Header */}
         <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between gap-4 bg-[#090A0F]">
@@ -261,7 +285,7 @@ export const AdminCMSModal: React.FC = () => {
               {isAuthenticated ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+              <h2 id="admin-cms-modal-title" className="text-sm font-bold text-white uppercase tracking-wider font-mono">
                 Portfolio Content Management System
               </h2>
               <p className="text-xs text-slate-400">
@@ -684,19 +708,14 @@ export const AdminCMSModal: React.FC = () => {
                           <span className="text-xs text-slate-400 font-mono">
                             Total Projects: {projects.length}
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm('Re-sync all 7 videos from your YouTube playlist (PLeblsp6_-mB4)?')) {
-                                syncYouTubePlaylist();
-                              }
-                            }}
-                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/[0.1] flex items-center gap-1.5 transition-colors"
+                          <ConfirmActionButton
+                            onConfirm={syncYouTubePlaylist}
+                            label="Sync Playlist (PLeblsp6_-mB4)"
+                            confirmLabel="Sync Defaults?"
                             title="Reload videos from YouTube playlist PLeblsp6_-mB4"
-                          >
-                            <Youtube className="w-3.5 h-3.5 text-red-500" />
-                            <span>Sync Playlist (PLeblsp6_-mB4)</span>
-                          </button>
+                            icon={<Youtube className="w-3.5 h-3.5 text-red-500 shrink-0" />}
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/[0.1] flex items-center gap-1.5 transition-colors cursor-pointer"
+                          />
                         </div>
 
                         <button
@@ -740,17 +759,15 @@ export const AdminCMSModal: React.FC = () => {
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
-                              <button
-                                onClick={() => {
-                                  if (confirm(`Delete project "${p.title}"?`)) {
-                                    deleteProject(p.id);
-                                  }
-                                }}
-                                className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-white/[0.05] transition-colors"
-                                title="Delete project"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              <ConfirmActionButton
+                                compact
+                                onConfirm={() => deleteProject(p.id)}
+                                confirmLabel="Delete?"
+                                title={`Delete project "${p.title}"`}
+                                ariaLabel={`Delete project ${p.title}`}
+                                icon={<Trash2 className="w-3.5 h-3.5" />}
+                                className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-white/[0.05] transition-colors cursor-pointer"
+                              />
                             </div>
                           </div>
                         ))}
@@ -899,16 +916,15 @@ export const AdminCMSModal: React.FC = () => {
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
-                              <button
-                                onClick={() => {
-                                  if (confirm(`Delete testimonial from ${t.clientName}?`)) {
-                                    deleteTestimonial(t.id);
-                                  }
-                                }}
-                                className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-white/[0.05]"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              <ConfirmActionButton
+                                compact
+                                onConfirm={() => deleteTestimonial(t.id)}
+                                confirmLabel="Delete?"
+                                title={`Delete testimonial from ${t.clientName}`}
+                                ariaLabel={`Delete testimonial from ${t.clientName}`}
+                                icon={<Trash2 className="w-3.5 h-3.5" />}
+                                className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-white/[0.05] transition-colors cursor-pointer"
+                              />
                             </div>
                           </div>
                         ))}
@@ -1061,19 +1077,14 @@ export const AdminCMSModal: React.FC = () => {
                         <span>Download JSON Backup</span>
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (confirm('Reset portfolio back to default showreel and projects? Any unsaved edits will be replaced.')) {
-                            resetToDefaults();
-                            setSettingsForm(settings);
-                          }
-                        }}
-                        className="px-4 py-2 rounded-lg text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center gap-1.5 transition-colors"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Reset to Initial Portfolio Data</span>
-                      </button>
+                      <ConfirmActionButton
+                        onConfirm={resetToDefaults}
+                        label="Reset to Initial Portfolio Data"
+                        confirmLabel="Confirm Reset?"
+                        title="Reset portfolio back to default showreel and projects"
+                        icon={<RotateCcw className="w-3.5 h-3.5 shrink-0" />}
+                        className="px-4 py-2 rounded-lg text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      />
                     </div>
 
                     {/* Import JSON textarea */}

@@ -1,19 +1,32 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode, Suspense, lazy } from 'react';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import { Navbar } from './components/Navbar';
 import { HomeView } from './components/pages/HomeView';
-import { Gallery } from './components/Gallery';
-import { ShowreelView } from './components/pages/ShowreelView';
-import { ReviewsView } from './components/pages/ReviewsView';
-import { ContactView } from './components/pages/ContactView';
-import { AdminPageView } from './components/pages/AdminPageView';
 import { Footer } from './components/Footer';
 import { VideoModal } from './components/VideoModal';
-import { AdminCMSModal } from './components/AdminCMSModal';
 import { PageLoader } from './components/PageLoader';
 import { CoolPageTransition } from './components/CoolPageTransition';
 import { ToastNotification } from './components/ToastNotification';
 import { Film, RefreshCw } from 'lucide-react';
+
+const Gallery = lazy(() =>
+  import('./components/Gallery').then(m => ({ default: m.Gallery }))
+);
+const ShowreelView = lazy(() =>
+  import('./components/pages/ShowreelView').then(m => ({ default: m.ShowreelView }))
+);
+const ReviewsView = lazy(() =>
+  import('./components/pages/ReviewsView').then(m => ({ default: m.ReviewsView }))
+);
+const ContactView = lazy(() =>
+  import('./components/pages/ContactView').then(m => ({ default: m.ContactView }))
+);
+const AdminPageView = lazy(() =>
+  import('./components/pages/AdminPageView').then(m => ({ default: m.AdminPageView }))
+);
+const AdminCMSModal = lazy(() =>
+  import('./components/AdminCMSModal').then(m => ({ default: m.AdminCMSModal }))
+);
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -72,18 +85,40 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
+const PageSuspenseFallback: React.FC = () => (
+  <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 px-4 py-16">
+    <div className="w-10 h-10 rounded-xl bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+      <Film className="w-5 h-5" />
+    </div>
+    <div className="w-36 h-[2px] bg-cyan-950/50 rounded-full overflow-hidden">
+      <div className="h-full w-full bg-gradient-to-r from-transparent via-cyan-400 to-[#00F0FF] animate-shimmer" />
+    </div>
+  </div>
+);
+
 const MainContent: React.FC = () => {
-  const { currentPage } = usePortfolio();
+  const { currentPage, isAdminOpen } = usePortfolio();
 
   return (
-    <main className="flex-1 gpu-stabilize">
-      {currentPage === 'home' && <HomeView />}
-      {currentPage === 'projects' && <Gallery />}
-      {currentPage === 'showreel' && <ShowreelView />}
-      {currentPage === 'reviews' && <ReviewsView />}
-      {currentPage === 'contact' && <ContactView />}
-      {currentPage === 'admin' && <AdminPageView />}
-    </main>
+    <>
+      <main className="flex-1 gpu-stabilize">
+        <Suspense fallback={<PageSuspenseFallback />}>
+          {currentPage === 'home' && <HomeView />}
+          {currentPage === 'projects' && <Gallery />}
+          {currentPage === 'showreel' && <ShowreelView />}
+          {currentPage === 'reviews' && <ReviewsView />}
+          {currentPage === 'contact' && <ContactView />}
+          {currentPage === 'admin' && <AdminPageView />}
+        </Suspense>
+      </main>
+
+      {/* Protected Content Management Modal (lazily loaded when opened) */}
+      {isAdminOpen && (
+        <Suspense fallback={null}>
+          <AdminCMSModal />
+        </Suspense>
+      )}
+    </>
   );
 };
 
@@ -104,7 +139,7 @@ export default function App() {
           {/* Navigation Bar */}
           <Navbar />
 
-          {/* Dedicated Page View Content */}
+          {/* Dedicated Page View Content & Lazy Overlays */}
           <MainContent />
 
           {/* Footer */}
@@ -112,9 +147,6 @@ export default function App() {
 
           {/* Lightbox Cinema Video Player Modal */}
           <VideoModal />
-
-          {/* Protected Content Management Modal */}
-          <AdminCMSModal />
         </div>
       </PortfolioProvider>
     </ErrorBoundary>

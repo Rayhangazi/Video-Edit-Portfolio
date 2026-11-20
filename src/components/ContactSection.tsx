@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { ProjectCategory } from '../types/portfolio';
-import { Send, CheckCircle2, Copy, Check, Clock, Sparkles } from 'lucide-react';
+import { copyToClipboard } from '../utils/videoUtils';
+import { Send, CheckCircle2, Copy, Check, Clock, Mail, ExternalLink } from 'lucide-react';
 
 export const ContactSection: React.FC = () => {
   const { settings, showToast, logTraffic } = usePortfolio();
@@ -31,17 +32,27 @@ export const ContactSection: React.FC = () => {
       setIsSubmitting(false);
       setIsSubmitted(true);
       showToast('⚡ Project inquiry transmitted successfully! Rayhan will reply within 12 hours.');
-    }, 800);
+    }, 600);
   };
 
-  const handleCopyEmail = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(settings.email);
+  const handleCopyEmail = async () => {
+    const ok = await copyToClipboard(settings.email);
+    if (ok) {
       setCopiedEmail(true);
       showToast('✓ Email address copied to clipboard');
       setTimeout(() => setCopiedEmail(false), 2500);
     }
   };
+
+  const emailSubject = encodeURIComponent(
+    `[Portfolio Project Inquiry] ${formData.category.toUpperCase()} — ${formData.name || 'New Client'}`
+  );
+  const emailBody = encodeURIComponent(
+    `Hi Rayhan,\n\nName: ${formData.name}\nEmail: ${formData.email}\nProject Format: ${formData.category}\nBudget: ${formData.budget}\nTarget Turnaround: ${formData.timeline || 'Flexible'}\n\nProject Scope & Footage Link:\n${formData.projectBrief}\n`
+  );
+  const mailtoInquiryUrl = `mailto:${settings.email}?subject=${emailSubject}&body=${emailBody}`;
+  const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(settings.email)}`;
+  const gmailInquiryUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(settings.email)}&su=${emailSubject}&body=${emailBody}`;
 
   return (
     <section id="contact" className="py-20 sm:py-24 border-b border-cyan-500/15 relative">
@@ -54,7 +65,7 @@ export const ContactSection: React.FC = () => {
             <div className="text-xs uppercase tracking-widest text-cyan-400 font-semibold mb-2 drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]">
               Dhaka, Bangladesh · Available Worldwide
             </div>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-6">
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-6 text-balance">
               Let’s build something extraordinary.
             </h2>
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">
@@ -69,23 +80,37 @@ export const ContactSection: React.FC = () => {
               <div className="flex items-center justify-between gap-4">
                 <a
                   href={`mailto:${settings.email}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-medium text-white hover:text-cyan-300 transition-colors truncate text-sm sm:text-base"
                 >
                   {settings.email}
                 </a>
-                <button
-                  type="button"
-                  onClick={handleCopyEmail}
-                  className="p-2 rounded-xl bg-slate-900/60 border border-cyan-500/25 text-slate-300 hover:text-cyan-300 hover:border-cyan-400/50 transition-colors shrink-0"
-                  title="Copy email to clipboard"
-                  aria-label="Copy email"
-                >
-                  {copiedEmail ? (
-                    <Check className="w-4 h-4 text-emerald-400" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleCopyEmail}
+                    className="p-2 rounded-xl bg-slate-900/60 border border-cyan-500/25 text-slate-300 hover:text-cyan-300 hover:border-cyan-400/50 transition-colors cursor-pointer"
+                    title="Copy email to clipboard"
+                    aria-label="Copy email"
+                  >
+                    {copiedEmail ? (
+                      <Check className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                  <a
+                    href={gmailComposeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-2 rounded-xl bg-slate-900/60 border border-cyan-500/25 text-cyan-300 hover:text-white hover:border-cyan-400/50 transition-colors text-xs font-mono inline-flex items-center gap-1"
+                    title="Compose email in Gmail"
+                  >
+                    <span>Gmail</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
 
               <div className="pt-3 border-t border-cyan-500/15 flex items-center gap-2 text-xs text-slate-400 font-mono">
@@ -117,7 +142,7 @@ export const ContactSection: React.FC = () => {
             <div className="p-5 sm:p-8 md:p-10 rounded-2xl glass-panel shadow-2xl">
               
               {isSubmitted ? (
-                <div className="py-12 text-center space-y-4">
+                <div className="py-10 text-center space-y-4">
                   <div className="w-16 h-16 rounded-full bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(6,182,212,0.3)]">
                     <CheckCircle2 className="w-8 h-8 text-cyan-400" />
                   </div>
@@ -127,6 +152,29 @@ export const ContactSection: React.FC = () => {
                   <p className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
                     Thank you, <strong className="text-white">{formData.name}</strong>. I will review your footage scope and respond via <strong className="text-white">{formData.email}</strong> within 12 hours with availability and a concrete quote.
                   </p>
+
+                  {/* Direct Email Backup Links */}
+                  <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
+                    <a
+                      href={gmailInquiryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Send Copy via Gmail</span>
+                    </a>
+                    <a
+                      href={mailtoInquiryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 rounded-xl bg-slate-900/60 border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-semibold inline-flex items-center gap-1.5"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Mail Client</span>
+                    </a>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -140,7 +188,7 @@ export const ContactSection: React.FC = () => {
                         projectBrief: ''
                       });
                     }}
-                    className="mt-6 px-6 py-2.5 rounded-xl bg-slate-900/60 border border-cyan-500/30 text-cyan-300 hover:text-white hover:border-cyan-400/60 text-xs font-semibold uppercase tracking-wider transition-colors"
+                    className="mt-4 px-6 py-2.5 rounded-xl bg-slate-900/60 border border-cyan-500/30 text-slate-300 hover:text-white hover:border-cyan-400/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Submit Another Inquiry
                   </button>
@@ -159,10 +207,11 @@ export const ContactSection: React.FC = () => {
                   {/* Name and Email row */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-slate-300">
+                      <label htmlFor="contact-name" className="block text-xs font-medium text-slate-300">
                         Your Name *
                       </label>
                       <input
+                        id="contact-name"
                         type="text"
                         required
                         placeholder="Alex Morgan"
@@ -173,10 +222,11 @@ export const ContactSection: React.FC = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-slate-300">
+                      <label htmlFor="contact-email" className="block text-xs font-medium text-slate-300">
                         Work Email *
                       </label>
                       <input
+                        id="contact-email"
                         type="email"
                         required
                         placeholder="alex@company.com"
@@ -190,12 +240,13 @@ export const ContactSection: React.FC = () => {
                   {/* Project Category & Budget row */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-slate-300">
+                      <label htmlFor="contact-category" className="block text-xs font-medium text-slate-300">
                         Project Format
                       </label>
                       <select
+                        id="contact-category"
                         value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value as ProjectCategory })}
                         className="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-cyan-500/25 text-white text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-colors backdrop-blur-md"
                       >
                         <option value="commercial">Commercial / Brand Film</option>
@@ -206,10 +257,11 @@ export const ContactSection: React.FC = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-slate-300">
+                      <label htmlFor="contact-budget" className="block text-xs font-medium text-slate-300">
                         Estimated Budget (BDT / ৳)
                       </label>
                       <select
+                        id="contact-budget"
                         value={formData.budget}
                         onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-cyan-500/25 text-white text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-colors backdrop-blur-md"
@@ -224,10 +276,11 @@ export const ContactSection: React.FC = () => {
 
                   {/* Desired Timeline */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-slate-300">
+                    <label htmlFor="contact-timeline" className="block text-xs font-medium text-slate-300">
                       Target Turnaround / Deadline
                     </label>
                     <input
+                      id="contact-timeline"
                       type="text"
                       placeholder="e.g. Rough cut in 48h, final delivery next Friday"
                       value={formData.timeline}
@@ -238,10 +291,11 @@ export const ContactSection: React.FC = () => {
 
                   {/* Project Brief / Footage Link */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-slate-300">
+                    <label htmlFor="contact-brief" className="block text-xs font-medium text-slate-300">
                       Project Scope & Footage Link *
                     </label>
                     <textarea
+                      id="contact-brief"
                       required
                       rows={4}
                       placeholder="Share details about pacing, desired visual references, raw footage runtime, or Google Drive / Frame.io links..."

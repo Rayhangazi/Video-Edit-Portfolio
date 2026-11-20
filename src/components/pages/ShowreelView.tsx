@@ -2,18 +2,16 @@ import React from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { AnalyticsMetricBar } from '../AnalyticsMetricBar';
 import { resolveAssetUrl } from '../../utils/thumbnailHelper';
-import { Play, Share2, Film, ArrowRight, MessageCircle, Sparkles } from 'lucide-react';
+import { buildPortfolioUrl, buildWhatsAppShareUrl, getDirectWatchUrl } from '../../utils/videoUtils';
+import { Play, Share2, Film, ArrowRight, MessageCircle, ExternalLink } from 'lucide-react';
 
 export const ShowreelView: React.FC = () => {
   const { settings, openShowreelVideo, shareShowreel, navigateTo } = usePortfolio();
 
   const showreelThumb = resolveAssetUrl(settings.showreelThumbnailUrl || 'showreel-thumbnail.jpg');
-
-  const shareToWhatsApp = () => {
-    const url = `${window.location.origin}${window.location.pathname}?page=showreel`;
-    const text = encodeURIComponent(`Watch Rayhan Gazi's Master Director & Editing Showreel: ${url}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
-  };
+  const showreelShareUrl = buildPortfolioUrl({ page: 'showreel' });
+  const whatsappShareUrl = buildWhatsAppShareUrl(`Watch Rayhan Gazi's Master Director & Editing Showreel: ${showreelShareUrl}`);
+  const directShowreelUrl = getDirectWatchUrl(settings.showreelUrl, settings.showreelSource);
 
   const specs = [
     { title: 'DaVinci Resolve Studio 19', label: 'Color Grading', sub: 'ACES Color Managed Pipeline', delay: 100 },
@@ -48,21 +46,35 @@ export const ShowreelView: React.FC = () => {
         </div>
 
         {/* Share buttons */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          {directShowreelUrl && (
+            <a
+              href={directShowreelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 hover:text-white border border-cyan-500/30 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+            >
+              <ExternalLink className="w-4 h-4 text-cyan-400" />
+              <span>Open Raw File</span>
+            </a>
+          )}
           <button
+            type="button"
             onClick={shareShowreel}
             className="px-4 py-2.5 rounded-xl bg-slate-900/60 hover:bg-cyan-950/50 text-white border border-cyan-500/25 hover:border-cyan-400/50 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
           >
             <Share2 className="w-4 h-4 text-cyan-400" />
             <span>Copy Showreel Link</span>
           </button>
-          <button
-            onClick={shareToWhatsApp}
+          <a
+            href={whatsappShareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="px-4 py-2.5 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Share on WhatsApp</span>
-          </button>
+          </a>
         </div>
       </div>
 
@@ -71,12 +83,21 @@ export const ShowreelView: React.FC = () => {
         
         {/* Aspect 16:9 Screen */}
         <div 
+          role="button"
+          tabIndex={0}
           onClick={openShowreelVideo}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openShowreelVideo();
+            }
+          }}
+          aria-label="Play 4K Master Director Showreel"
           className="relative cursor-pointer aspect-video w-full overflow-hidden bg-black"
         >
           {/* Fallback film gradient */}
           <div className="absolute inset-0 bg-gradient-to-tr from-[#040812] via-[#091526] to-[#0e233d] flex items-center justify-center pointer-events-none">
-            <Film className="w-12 h-12 text-cyan-500/30 animate-pulse" />
+            <Film className="w-12 h-12 text-cyan-500/30" />
           </div>
 
           {/* Master Thumbnail Image - Guaranteed permanent, never disappears on mouse move */}
@@ -85,6 +106,7 @@ export const ShowreelView: React.FC = () => {
             alt="Rayhan Gazi — Master Director & Editing Showreel"
             loading="eager"
             decoding="async"
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-100 pointer-events-none select-none"
             style={{
               transform: 'translateZ(0)',
@@ -93,10 +115,12 @@ export const ShowreelView: React.FC = () => {
             }}
             onError={(e) => {
               const target = e.currentTarget;
-              if (!target.src.endsWith('/showreel-thumbnail.jpg')) {
-                target.src = '/showreel-thumbnail.jpg';
-              } else if (!target.src.endsWith('/og-cover.jpg')) {
-                target.src = '/og-cover.jpg';
+              const fallback1 = resolveAssetUrl('showreel-thumbnail.jpg');
+              const fallback2 = resolveAssetUrl('og-cover.jpg');
+              if (!target.src.endsWith('showreel-thumbnail.jpg')) {
+                target.src = fallback1;
+              } else if (!target.src.endsWith('og-cover.jpg')) {
+                target.src = fallback2;
               }
             }}
           />

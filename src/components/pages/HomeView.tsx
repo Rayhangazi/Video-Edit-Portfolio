@@ -3,13 +3,14 @@ import { usePortfolio } from '../../context/PortfolioContext';
 import { Hero } from '../Hero';
 import { BestVideosSection } from '../BestVideosSection';
 import { AnalyticsMetricBar } from '../AnalyticsMetricBar';
+import { buildPortfolioUrl, buildWhatsAppShareUrl } from '../../utils/videoUtils';
 import { ArrowUpRight, Share2, Film, Youtube, Smartphone, HardDrive, MessageCircle, ArrowRight, ShieldCheck, Clock } from 'lucide-react';
 
 export const HomeView: React.FC = () => {
   const { projects, navigateTo, shareCategory } = usePortfolio();
 
   const commercialCount = projects.filter(p => p.category === 'commercial').length;
-  const youtubeCount = projects.filter(p => p.category === 'youtube').length;
+  const youtubeCount = projects.filter(p => p.videoSource === 'youtube' || p.category === 'youtube').length;
   const shortCount = projects.filter(p => p.category === 'short_form' || p.aspectRatio === '9:16').length;
   const driveCount = projects.filter(p => p.videoSource === 'gdrive').length;
 
@@ -77,7 +78,7 @@ export const HomeView: React.FC = () => {
             <div className="text-xs uppercase tracking-widest text-cyan-400 font-semibold mb-2 drop-shadow-[0_0_6px_rgba(6,182,212,0.4)]">
               Curated Post-Production
             </div>
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white text-balance">
               Explore Portfolio by Category
             </h2>
             <p className="text-slate-300 text-xs sm:text-sm mt-1">
@@ -86,6 +87,7 @@ export const HomeView: React.FC = () => {
           </div>
 
           <button
+            type="button"
             onClick={() => navigateTo('projects')}
             className="text-xs sm:text-sm font-semibold text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
           >
@@ -98,10 +100,23 @@ export const HomeView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {categories.map((cat, idx) => {
             const Icon = cat.icon;
+            const catShareUrl = buildPortfolioUrl({ page: 'projects', category: cat.id });
+            const whatsappUrl = buildWhatsAppShareUrl(`Check out Rayhan Gazi's ${cat.title} edits: ${catShareUrl}`);
+
             return (
               <div
                 key={cat.id}
-                className={`group p-6 rounded-2xl glass-card ${cat.border} transition-all duration-300 flex flex-col justify-between`}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigateTo('projects', cat.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigateTo('projects', cat.id);
+                  }
+                }}
+                aria-label={`Browse ${cat.title} (${cat.count} projects)`}
+                className={`group p-6 rounded-2xl glass-card ${cat.border} transition-all duration-300 flex flex-col justify-between cursor-pointer`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
@@ -125,7 +140,11 @@ export const HomeView: React.FC = () => {
 
                     {/* Sharable button */}
                     <button
-                      onClick={() => shareCategory(cat.id, cat.title)}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        shareCategory(cat.id, cat.title);
+                      }}
                       title={`Share direct link to ${cat.title}`}
                       className="px-3 py-1.5 rounded-xl bg-slate-900/60 hover:bg-cyan-950/50 text-slate-400 hover:text-cyan-300 border border-cyan-500/20 hover:border-cyan-400/50 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
@@ -145,24 +164,27 @@ export const HomeView: React.FC = () => {
                 {/* Card footer buttons */}
                 <div className="pt-4 border-t border-cyan-500/15 flex items-center justify-between gap-3">
                   <button
-                    onClick={() => navigateTo('projects', cat.id)}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigateTo('projects', cat.id);
+                    }}
                     className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 cursor-pointer group-hover:translate-x-1 transition-transform"
                   >
                     <span>Open Category Gallery</span>
                     <ArrowUpRight className="w-4 h-4" />
                   </button>
 
-                  <button
-                    onClick={() => {
-                      const url = `${window.location.origin}${window.location.pathname}?page=projects&category=${cat.id}`;
-                      const text = encodeURIComponent(`Check out Rayhan Gazi's ${cat.title} edits: ${url}`);
-                      window.open(`https://wa.me/?text=${text}`, '_blank');
-                    }}
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-[#25D366] hover:bg-[#25D366]/10 transition-colors cursor-pointer"
                     title="Send Category to Client on WhatsApp"
                   >
                     <MessageCircle className="w-4 h-4" />
-                  </button>
+                  </a>
                 </div>
               </div>
             );
@@ -177,7 +199,7 @@ export const HomeView: React.FC = () => {
             <div className="text-xs font-semibold text-cyan-400 uppercase tracking-widest font-mono drop-shadow-[0_0_6px_rgba(6,182,212,0.4)]">
               Production Caliber
             </div>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white text-balance">
               Studio grade color, velocity pacing & 48h turnaround
             </h2>
             <p className="text-slate-300 text-sm leading-relaxed max-w-xl">

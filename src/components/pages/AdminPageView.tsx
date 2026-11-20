@@ -1,23 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
-import { Project, ProjectCategory, AspectRatio, VideoSourceType } from '../../types/portfolio';
+import { ProjectCategory, AspectRatio } from '../../types/portfolio';
 import { AnalyticsMetricBar } from '../AnalyticsMetricBar';
+import { ConfirmActionButton } from '../ConfirmActionButton';
 import { 
   getDailyTrafficData, 
   getRealPageBreakdown, 
   getRealLocationBreakdown, 
   getRealDeviceBreakdown, 
-  getRealReferrerBreakdown,
-  detectRealDevice,
-  detectRealLocation 
+  getRealReferrerBreakdown
 } from '../../utils/trafficTracker';
-import { extractGoogleDriveId, getGoogleDriveThumbnail } from '../../utils/videoUtils';
+import { extractGoogleDriveId, getGoogleDriveThumbnail, getDirectWatchUrl } from '../../utils/videoUtils';
 import { 
   Lock, Unlock, Eye, EyeOff, BarChart3, HardDrive, Film, FolderGit2, 
-  Settings, Users, Plus, Trash2, Edit3, Save, RefreshCw, Check, 
-  AlertCircle, Share2, Play, ExternalLink, ArrowLeft, Download, 
-  Upload, Layers, Sparkles, Smartphone, Globe, Monitor, Search, 
-  Filter, CheckSquare, Square, Zap, Activity
+  Settings, Users, Plus, Trash2, RefreshCw, 
+  AlertCircle, Play, ExternalLink, ArrowLeft, Download, 
+  Upload, Layers, Smartphone, Globe, Monitor, Search, 
+  CheckSquare, Square, Zap, Activity
 } from 'lucide-react';
 
 export const AdminPageView: React.FC = () => {
@@ -27,12 +26,8 @@ export const AdminPageView: React.FC = () => {
     logoutAdmin,
     navigateTo,
     projects,
-    updateProject,
-    addProject,
     deleteProject,
     testimonials,
-    addTestimonial,
-    updateTestimonial,
     deleteTestimonial,
     settings,
     updateSettings,
@@ -47,6 +42,7 @@ export const AdminPageView: React.FC = () => {
     addGoogleDriveSubCategory,
     importGoogleDriveProjects,
     openProjectVideo,
+    openAdminModal,
     exportDataToJson,
     importDataFromJson
   } = usePortfolio();
@@ -77,11 +73,22 @@ export const AdminPageView: React.FC = () => {
   const [importCategory, setImportCategory] = useState<ProjectCategory>('commercial');
   const [importSubCat, setImportSubCat] = useState('clothing');
   const [importAspect, setImportAspect] = useState<AspectRatio>('16:9');
-  const [importDuration, setImportDuration] = useState('1:00');
 
   // JSON Import State
   const [jsonInput, setJsonInput] = useState('');
   const [jsonFeedback, setJsonFeedback] = useState<string | null>(null);
+
+  const handleRestoreJson = () => {
+    if (!jsonInput.trim()) return;
+    const res = importDataFromJson(jsonInput);
+    if (res.success) {
+      setJsonFeedback('Backup successfully restored.');
+      setJsonInput('');
+      setTimeout(() => setJsonFeedback(null), 3500);
+    } else {
+      setJsonFeedback(`Import failed: ${res.error}`);
+    }
+  };
 
   // Handle PIN Unlock
   const handlePinSubmit = (e: React.FormEvent) => {
@@ -183,7 +190,7 @@ export const AdminPageView: React.FC = () => {
         category: importCategory,
         subCategory: importSubCat,
         aspectRatio: importAspect,
-        duration: importDuration
+        duration: importAspect === '9:16' ? '0:35' : '1:00'
       };
     });
 
@@ -568,7 +575,7 @@ export const AdminPageView: React.FC = () => {
                 <span className="text-[10px] text-slate-400 font-mono">Single page exits</span>
               </div>
               <div className="mt-3">
-                <AnalyticsMetricBar percentage={trafficStats.bounceRatePercent} delayMs={300} color="gold" heightPx={2} />
+                <AnalyticsMetricBar percentage={trafficStats.bounceRatePercent} delayMs={300} color="cyan" heightPx={2} />
               </div>
             </div>
           </div>
@@ -648,7 +655,7 @@ export const AdminPageView: React.FC = () => {
 
               <div className="space-y-3 text-xs">
                 {pageBreakdown.map((item, idx) => {
-                  const colors: ('cyan' | 'blue' | 'emerald' | 'gold' | 'red')[] = ['cyan', 'blue', 'emerald', 'gold', 'red'];
+                  const colors: ('cyan' | 'blue' | 'emerald' | 'red')[] = ['cyan', 'blue', 'emerald', 'red'];
                   const barColor = colors[idx % colors.length];
                   return (
                     <div key={idx} className="space-y-1">
@@ -1077,9 +1084,9 @@ export const AdminPageView: React.FC = () => {
                             </button>
 
                             <a
-                              href={project.videoUrl}
+                              href={getDirectWatchUrl(project.videoUrl, project.videoSource)}
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noopener noreferrer"
                               title="Open in Google Drive"
                               className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer"
                             >
@@ -1200,29 +1207,11 @@ export const AdminPageView: React.FC = () => {
               <p className="text-xs text-slate-400">Total {projects.length} commercial, YouTube, and vertical reel projects</p>
             </div>
             <button
-              onClick={() => {
-                const title = prompt('Enter project title:');
-                if (!title) return;
-                const client = prompt('Enter client name:') || 'Client';
-                const videoUrl = prompt('Enter video URL (YouTube or Google Drive):') || '';
-                addProject({
-                  title,
-                  client,
-                  category: 'commercial',
-                  aspectRatio: '16:9',
-                  videoSource: videoUrl.includes('drive.google.com') ? 'gdrive' : 'youtube',
-                  videoUrl,
-                  duration: '1:00',
-                  tools: ['Premiere Pro', 'DaVinci Resolve Studio'],
-                  description: 'Commercial video cut for brand client.',
-                  year: '2026',
-                  accentColor: '#00F0FF'
-                });
-              }}
+              onClick={openAdminModal}
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-black text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md"
             >
               <Plus className="w-4 h-4" />
-              <span>Add New Project</span>
+              <span>Add / Edit in Studio CMS</span>
             </button>
           </div>
 
@@ -1236,7 +1225,7 @@ export const AdminPageView: React.FC = () => {
                     <th className="py-3 px-4">Category</th>
                     <th className="py-3 px-4">Ratio</th>
                     <th className="py-3 px-4">Year</th>
-                    <th className="py-3 px-4 text-right">Delete</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
@@ -1263,16 +1252,26 @@ export const AdminPageView: React.FC = () => {
                         {p.year}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => {
-                            if (confirm(`Delete "${p.title}"?`)) {
-                              deleteProject(p.id);
-                            }
-                          }}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <a
+                            href={getDirectWatchUrl(p.videoUrl, p.videoSource)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Open Video Link"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors cursor-pointer"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                          <ConfirmActionButton
+                            compact
+                            onConfirm={() => deleteProject(p.id)}
+                            confirmLabel="Delete?"
+                            title={`Delete "${p.title}"`}
+                            ariaLabel={`Delete project ${p.title}`}
+                            icon={<Trash2 className="w-4 h-4" />}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                          />
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1294,24 +1293,11 @@ export const AdminPageView: React.FC = () => {
               <p className="text-xs text-slate-400">Verified social proof and performance metrics for brands</p>
             </div>
             <button
-              onClick={() => {
-                const clientName = prompt('Enter client name:');
-                if (!clientName) return;
-                const companyOrChannel = prompt('Enter brand / company:') || 'Brand';
-                const quote = prompt('Enter review quote:') || 'Excellent editing quality.';
-                const metricHighlight = prompt('Enter metric highlight (e.g. +34% Retention):') || '+30% Retention';
-                addTestimonial({
-                  clientName,
-                  clientRole: 'Creative Director',
-                  companyOrChannel,
-                  quote,
-                  metricHighlight
-                });
-              }}
+              onClick={openAdminModal}
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-black text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Testimonial</span>
+              <span>Add / Edit in Studio CMS</span>
             </button>
           </div>
 
@@ -1321,16 +1307,15 @@ export const AdminPageView: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold text-cyan-400">{t.metricHighlight}</span>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Delete review from ${t.clientName}?`)) {
-                          deleteTestimonial(t.id);
-                        }
-                      }}
-                      className="text-slate-500 hover:text-rose-400 transition-colors p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <ConfirmActionButton
+                      compact
+                      onConfirm={() => deleteTestimonial(t.id)}
+                      confirmLabel="Delete?"
+                      title={`Delete review from ${t.clientName}`}
+                      ariaLabel={`Delete review from ${t.clientName}`}
+                      icon={<Trash2 className="w-4 h-4" />}
+                      className="text-slate-500 hover:text-rose-400 transition-colors p-1 cursor-pointer"
+                    />
                   </div>
                   <p className="text-xs text-slate-300 italic leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
                 </div>
@@ -1453,17 +1438,41 @@ export const AdminPageView: React.FC = () => {
                     <span>Download JSON Backup</span>
                   </button>
 
-                  <button
-                    onClick={() => {
-                      if (confirm('Reset portfolio to initial data? All changes will be replaced.')) {
-                        resetToDefaults();
-                      }
-                    }}
+                  <ConfirmActionButton
+                    onConfirm={resetToDefaults}
+                    label="Reset to Initial Data"
+                    confirmLabel="Confirm Reset?"
+                    title="Reset portfolio to initial default projects and settings"
+                    icon={<RefreshCw className="w-4 h-4 shrink-0" />}
                     className="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    <span>Reset to Initial Data</span>
-                  </button>
+                  />
+                </div>
+
+                {/* Restore from JSON Backup */}
+                <div className="pt-4 border-t border-white/[0.06] space-y-2">
+                  <label htmlFor="admin-json-restore" className="text-slate-400 font-mono block">
+                    Restore Portfolio from JSON Backup
+                  </label>
+                  <textarea
+                    id="admin-json-restore"
+                    rows={2}
+                    value={jsonInput}
+                    onChange={(e) => setJsonInput(e.target.value)}
+                    placeholder="Paste exported JSON backup content here..."
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/[0.1] text-white font-mono text-xs focus:outline-none focus:border-cyan-500 resize-none"
+                  />
+                  {jsonFeedback && (
+                    <p className="text-xs font-mono text-cyan-400">{jsonFeedback}</p>
+                  )}
+                  {jsonInput.trim() && (
+                    <button
+                      type="button"
+                      onClick={handleRestoreJson}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold text-xs uppercase tracking-wider cursor-pointer"
+                    >
+                      Apply Restored Backup
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

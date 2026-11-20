@@ -1,23 +1,35 @@
 import React from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { AnalyticsMetricBar } from '../AnalyticsMetricBar';
-import { Star, TrendingUp, Share2, MessageCircle, ArrowRight } from 'lucide-react';
+import { buildPortfolioUrl, buildWhatsAppShareUrl, copyToClipboard } from '../../utils/videoUtils';
+import { Star, TrendingUp, Share2, MessageCircle, ArrowRight, Play } from 'lucide-react';
 
 export const ReviewsView: React.FC = () => {
-  const { testimonials, showToast, navigateTo } = usePortfolio();
+  const { testimonials, projects, openProjectVideo, showToast, navigateTo } = usePortfolio();
+
+  const reviewsShareUrl = buildPortfolioUrl({ page: 'reviews' });
+  const whatsappShareUrl = buildWhatsAppShareUrl(
+    `Read client reviews & verified results for video editor Rayhan Gazi: ${reviewsShareUrl}`
+  );
 
   const shareReviews = () => {
-    const url = `${window.location.origin}${window.location.pathname}?page=reviews`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-    }
+    copyToClipboard(reviewsShareUrl);
     showToast('🔗 Copied direct link to Client Reviews & Testimonials!');
   };
 
-  const shareToWhatsApp = () => {
-    const url = `${window.location.origin}${window.location.pathname}?page=reviews`;
-    const text = encodeURIComponent(`Read client reviews & verified results for video editor Rayhan Gazi: ${url}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+  const handleOpenReferencedProject = (refTitle: string) => {
+    const cleanRef = refTitle.trim().toLowerCase();
+    const matched = projects.find(
+      p =>
+        p.title.trim().toLowerCase() === cleanRef ||
+        p.title.toLowerCase().includes(cleanRef.split('—')[0].trim()) ||
+        cleanRef.includes(p.title.toLowerCase().split('—')[0].trim())
+    );
+    if (matched) {
+      openProjectVideo(matched);
+    } else {
+      navigateTo('projects');
+    }
   };
 
   return (
@@ -41,19 +53,22 @@ export const ReviewsView: React.FC = () => {
         {/* Share buttons */}
         <div className="flex items-center gap-3 shrink-0">
           <button
+            type="button"
             onClick={shareReviews}
             className="px-4 py-2.5 rounded-xl bg-slate-900/60 hover:bg-cyan-950/50 text-white border border-cyan-500/25 hover:border-cyan-400/50 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
           >
             <Share2 className="w-4 h-4 text-cyan-400" />
             <span>Copy Reviews Link</span>
           </button>
-          <button
-            onClick={shareToWhatsApp}
+          <a
+            href={whatsappShareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="px-4 py-2.5 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Share via WhatsApp</span>
-          </button>
+          </a>
         </div>
       </div>
 
@@ -62,7 +77,7 @@ export const ReviewsView: React.FC = () => {
         {testimonials.map((item, idx) => (
           <div
             key={item.id}
-            className="p-8 rounded-2xl glass-card flex flex-col justify-between"
+            className="p-6 sm:p-8 rounded-2xl glass-card flex flex-col justify-between"
           >
             <div>
               {/* Metric Highlight Header with thin loading bar underneath */}
@@ -90,7 +105,7 @@ export const ReviewsView: React.FC = () => {
             </div>
 
             {/* Client Attributions Footer */}
-            <div className="pt-6 border-t border-cyan-500/15 flex items-center justify-between">
+            <div className="pt-6 border-t border-cyan-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="font-semibold text-white text-sm">
                   {item.clientName}
@@ -103,9 +118,15 @@ export const ReviewsView: React.FC = () => {
               </div>
 
               {item.projectReference && (
-                <span className="text-[11px] font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-1 rounded-md hidden sm:inline-block shadow-[0_0_8px_rgba(6,182,212,0.2)]">
-                  {item.projectReference}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => handleOpenReferencedProject(item.projectReference!)}
+                  title={`Watch referenced project: ${item.projectReference}`}
+                  className="self-start sm:self-auto text-[11px] font-mono text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-500/30 hover:border-cyan-400/60 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-[0_0_8px_rgba(6,182,212,0.2)] transition-all cursor-pointer"
+                >
+                  <Play className="w-3 h-3 fill-cyan-400 text-cyan-400 shrink-0" />
+                  <span className="truncate max-w-[210px]">{item.projectReference}</span>
+                </button>
               )}
             </div>
           </div>
@@ -124,6 +145,7 @@ export const ReviewsView: React.FC = () => {
         </div>
 
         <button
+          type="button"
           onClick={() => navigateTo('contact')}
           className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 text-black font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.4)] shrink-0"
         >

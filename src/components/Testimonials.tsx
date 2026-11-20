@@ -1,10 +1,25 @@
 import React from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { AnalyticsMetricBar } from './AnalyticsMetricBar';
-import { Star, TrendingUp } from 'lucide-react';
+import { Star, TrendingUp, Play } from 'lucide-react';
 
 export const Testimonials: React.FC = () => {
-  const { testimonials } = usePortfolio();
+  const { testimonials, projects, openProjectVideo, navigateTo } = usePortfolio();
+
+  const handleOpenReferencedProject = (refTitle: string) => {
+    const cleanRef = refTitle.trim().toLowerCase();
+    const matched = projects.find(
+      p =>
+        p.title.trim().toLowerCase() === cleanRef ||
+        p.title.toLowerCase().includes(cleanRef.split('—')[0].trim()) ||
+        cleanRef.includes(p.title.toLowerCase().split('—')[0].trim())
+    );
+    if (matched) {
+      openProjectVideo(matched);
+    } else {
+      navigateTo('projects');
+    }
+  };
 
   return (
     <section id="testimonials" className="py-24 border-b border-cyan-500/15 relative">
@@ -15,7 +30,7 @@ export const Testimonials: React.FC = () => {
           <div className="text-xs uppercase tracking-widest text-cyan-400 font-semibold mb-2 drop-shadow-[0_0_6px_rgba(6,182,212,0.4)]">
             Client Impact & Bangladeshi Brand Reviews
           </div>
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4 text-balance">
             Trusted by Leading Bangladesh Brands & Creators
           </h2>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
@@ -56,7 +71,7 @@ export const Testimonials: React.FC = () => {
               </div>
 
               {/* Client Attributions Footer */}
-              <div className="pt-6 border-t border-cyan-500/15 flex items-center justify-between">
+              <div className="pt-6 border-t border-cyan-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="font-semibold text-white text-sm">
                     {item.clientName}
@@ -69,9 +84,15 @@ export const Testimonials: React.FC = () => {
                 </div>
 
                 {item.projectReference && (
-                  <span className="text-[11px] font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-1 rounded-md shadow-[0_0_8px_rgba(6,182,212,0.2)]">
-                    {item.projectReference}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenReferencedProject(item.projectReference!)}
+                    title={`Watch referenced project: ${item.projectReference}`}
+                    className="self-start sm:self-auto text-[11px] font-mono text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-500/30 hover:border-cyan-400/60 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-[0_0_8px_rgba(6,182,212,0.2)] transition-all cursor-pointer"
+                  >
+                    <Play className="w-3 h-3 fill-cyan-400 text-cyan-400 shrink-0" />
+                    <span className="truncate max-w-[210px]">{item.projectReference}</span>
+                  </button>
                 )}
               </div>
             </div>

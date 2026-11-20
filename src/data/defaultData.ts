@@ -35,7 +35,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     description: 'High-production commercial cut for Prime Living Bangladesh. Features clean color grading, smooth pacing, and informative product callouts highlighting premium ergonomic sleep support.',
     featured: true,
     year: '2026',
-    accentColor: '#F59E0B'
+    accentColor: '#06B6D4'
   },
   {
     id: 'proj-rg-2',
@@ -169,7 +169,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     description: 'High-energy fashion reel cut with synchronized beats, textured typography, and model motion for seasonal winter drops in Bangladesh.',
     featured: true,
     year: '2026',
-    accentColor: '#F59E0B'
+    accentColor: '#06B6D4'
   },
   {
     id: 'proj-gd-hoodie-2',
@@ -266,7 +266,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     description: 'Polished master commercial edit for Prime Living showcasing Jacuard mattress craftsmanship, lifestyle cinematography, and soothing pacing.',
     featured: true,
     year: '2026',
-    accentColor: '#F59E0B'
+    accentColor: '#06B6D4'
   },
   {
     id: 'proj-gd-motion-spec',
@@ -757,7 +757,7 @@ export const DEFAULT_TESTIMONIALS: Testimonial[] = [
     clientRole: 'Growth Marketing Director',
     companyOrChannel: 'Dine Dhaka & Traditional Foods',
     metricHighlight: '850K+ Organic Reels Reach in BD',
-    quote: 'Rayhan engineered our beef pickle food ads and animated restaurant menus. The mouth-watering cinematography cuts drove phenomenal engagement and order volume across Dhaka.',
-    projectReference: 'Gourmet Beef Pickle — Heritage Culinary Ad BD'
+    quote: 'Rayhan engineered our hospitality food ads and animated restaurant menus. The mouth-watering cinematography cuts drove phenomenal engagement and order volume across Dhaka.',
+    projectReference: 'Dine Dhaka — Kinetic Animated Social Menu'
   }
 ];

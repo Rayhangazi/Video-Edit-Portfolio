@@ -68,16 +68,16 @@ export const AnalyticsMetricBar: React.FC<AnalyticsMetricBarProps> = ({
     return () => clearTimeout(timer);
   }, [inView, percentage, delayMs]);
 
-  // Glowing Cyan & Glass Color Gradient Themes
+  // Unified Cool Cyan & Accent Gradient Themes
   let gradientClass = 'from-cyan-500/40 via-cyan-400 to-[#00F0FF] shadow-[0_0_12px_rgba(0,240,255,0.8)]';
   if (color === 'blue') {
     gradientClass = 'from-blue-500/40 via-blue-400 to-sky-300 shadow-[0_0_10px_rgba(96,165,250,0.6)]';
   } else if (color === 'emerald') {
     gradientClass = 'from-emerald-500/40 via-emerald-400 to-teal-300 shadow-[0_0_10px_rgba(52,211,153,0.6)]';
   } else if (color === 'gold') {
-    gradientClass = 'from-[#E5A93C]/40 via-[#E5A93C] to-[#F59E0B] shadow-[0_0_8px_rgba(229,169,60,0.6)]';
+    gradientClass = 'from-sky-500/40 via-cyan-400 to-teal-300 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
   } else if (color === 'red') {
-    gradientClass = 'from-rose-500/40 via-rose-400 to-amber-400 shadow-[0_0_10px_rgba(244,63,94,0.6)]';
+    gradientClass = 'from-rose-500/40 via-rose-400 to-pink-400 shadow-[0_0_10px_rgba(244,63,94,0.6)]';
   }
 
   return (
@@ -88,10 +88,10 @@ export const AnalyticsMetricBar: React.FC<AnalyticsMetricBarProps> = ({
       aria-hidden="true"
     >
       <div
-        className={`h-full rounded-full bg-gradient-to-r ${gradientClass} transition-all duration-1000 ease-out`}
+        className={`h-full w-full origin-left rounded-full bg-gradient-to-r ${gradientClass} transition-transform duration-700 ease-out`}
         style={{
-          width: `${fillWidth}%`,
-          willChange: 'width'
+          transform: `scaleX(${fillWidth / 100})`,
+          willChange: 'transform'
         }}
       />
     </div>
@@ -158,9 +158,13 @@ export const AnimatedKpiCard: React.FC<AnimatedKpiCardProps> = ({
   useEffect(() => {
     if (!inView) return;
 
-    // Smooth reveal of numerical value
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     const match = value.match(/^([0-9.]+)(.*)$/);
-    if (!match) {
+    if (!match || prefersReducedMotion) {
       setDisplayedValue(value);
       return;
     }
@@ -168,34 +172,37 @@ export const AnimatedKpiCard: React.FC<AnimatedKpiCardProps> = ({
     const targetNum = parseFloat(match[1]);
     const suffix = match[2];
     const isDecimal = match[1].includes('.');
-    const duration = 900; // ms
-    const startTime = performance.now();
-
-    const animateNumber = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(1, elapsed / duration);
-      // Ease out cubic
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentVal = easeOut * targetNum;
-
-      if (isDecimal) {
-        setDisplayedValue(`${currentVal.toFixed(1)}${suffix}`);
-      } else {
-        setDisplayedValue(`${Math.round(currentVal)}${suffix}`);
-      }
-
-      if (progress < 1) {
-        requestAnimationFrame(animateNumber);
-      } else {
-        setDisplayedValue(value);
-      }
-    };
+    const duration = 700;
+    let rafId = 0;
 
     const delayTimeout = setTimeout(() => {
-      requestAnimationFrame(animateNumber);
+      const startTime = performance.now();
+      const animateNumber = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentVal = easeOut * targetNum;
+
+        if (isDecimal) {
+          setDisplayedValue(`${currentVal.toFixed(1)}${suffix}`);
+        } else {
+          setDisplayedValue(`${Math.round(currentVal)}${suffix}`);
+        }
+
+        if (progress < 1) {
+          rafId = requestAnimationFrame(animateNumber);
+        } else {
+          setDisplayedValue(value);
+        }
+      };
+
+      rafId = requestAnimationFrame(animateNumber);
     }, delayMs);
 
-    return () => clearTimeout(delayTimeout);
+    return () => {
+      clearTimeout(delayTimeout);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [inView, value, delayMs]);
 
   return (

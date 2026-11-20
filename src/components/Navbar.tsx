@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { AppPage } from '../types/portfolio';
 import { Lock, SlidersHorizontal, Menu, X, Film, FolderGit2, Star, Mail, Home, Sparkles } from 'lucide-react';
@@ -7,13 +7,22 @@ export const Navbar: React.FC = () => {
   const { isAuthenticated, currentPage, navigateTo } = usePortfolio();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems: { page: AppPage; label: string; icon: any }[] = [
+  const navItems: { page: AppPage; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { page: 'home', label: 'Home', icon: Home },
     { page: 'projects', label: 'Projects', icon: FolderGit2 },
     { page: 'showreel', label: 'Showreel', icon: Film },
     { page: 'reviews', label: 'Reviews', icon: Star },
     { page: 'contact', label: 'Contact', icon: Mail },
   ];
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
 
   const handleNavClick = (page: AppPage) => {
     navigateTo(page);
@@ -84,19 +93,23 @@ export const Navbar: React.FC = () => {
             )}
           </button>
 
-          {/* Book Project CTA - responsive on mobile */}
+          {/* Book Project CTA - visible on tablet & desktop */}
           <button
+            type="button"
             onClick={() => handleNavClick('contact')}
-            className="hidden xs:inline-flex px-3.5 sm:px-5 py-1.5 sm:py-2.5 text-xs font-bold text-black bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 active:scale-[0.98] transition-all rounded-xl whitespace-nowrap shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer min-h-[36px] sm:min-h-[40px] items-center"
+            className="hidden sm:inline-flex px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold text-black bg-gradient-to-r from-cyan-500 via-cyan-400 to-[#00F0FF] hover:from-cyan-400 hover:to-cyan-300 active:scale-[0.98] transition-all rounded-xl whitespace-nowrap shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer min-h-[36px] sm:min-h-[40px] items-center"
           >
             Book Project
           </button>
 
           {/* Mobile Menu Hamburger with ≥ 44px touch target */}
           <button
+            type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2.5 rounded-xl bg-slate-900/60 border border-cyan-500/30 text-cyan-300 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors"
             aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-drawer"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -106,7 +119,10 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-cyan-500/20 bg-[#050B14]/98 backdrop-blur-2xl px-4 py-5 space-y-2.5 animate-in slide-in-from-top duration-200 shadow-2xl">
+        <div
+          id="mobile-nav-drawer"
+          className="md:hidden border-t border-cyan-500/20 bg-[#050B14]/98 backdrop-blur-2xl px-4 py-5 space-y-2.5 animate-in slide-in-from-top duration-200 shadow-2xl"
+        >
           {navItems.map(item => {
             const Icon = item.icon;
             const isActive = currentPage === item.page;

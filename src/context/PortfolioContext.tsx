@@ -4,14 +4,22 @@ import {
   VideoSourceType, AppPage, TrafficEvent, TrafficStats 
 } from '../types/portfolio';
 import { DEFAULT_PROJECTS, DEFAULT_TESTIMONIALS, DEFAULT_SITE_SETTINGS } from '../data/defaultData';
-import { extractGoogleDriveId } from '../utils/videoUtils';
+import { 
+  extractGoogleDriveId, 
+  buildPortfolioUrl, 
+  copyToClipboard 
+} from '../utils/videoUtils';
+import { resolveAssetUrl } from '../utils/thumbnailHelper';
 import { 
   getStoredTrafficEvents, recordTrafficEvent, computeTrafficStats, 
   resetTrafficStorage 
 } from '../utils/trafficTracker';
 
+export type ActiveCategoryFilter = ProjectCategory | 'all' | 'gdrive';
+
 export interface ActiveVideoState {
   isOpen: boolean;
+  id?: string;
   title: string;
   originalName?: string;
   client: string;
@@ -31,8 +39,8 @@ interface PortfolioContextType {
   projects: Project[];
   testimonials: Testimonial[];
   settings: SiteSettings;
-  activeCategory: ProjectCategory | 'all';
-  setActiveCategory: (cat: ProjectCategory | 'all') => void;
+  activeCategory: ActiveCategoryFilter;
+  setActiveCategory: (cat: ActiveCategoryFilter) => void;
   activeVideo: ActiveVideoState | null;
   openProjectVideo: (project: Project) => void;
   openShowreelVideo: () => void;
@@ -43,7 +51,7 @@ interface PortfolioContextType {
   setCurrentPage: (page: AppPage) => void;
   isPageTransitioning: boolean;
   transitionLabel: string;
-  navigateTo: (page: AppPage, category?: ProjectCategory | 'all' | string, options?: { transitionLabel?: string }) => void;
+  navigateTo: (page: AppPage, category?: ActiveCategoryFilter | string, options?: { transitionLabel?: string }) => void;
   
   // Toast & Sharable Buttons
   toastMessage: string | null;
@@ -112,6 +120,8 @@ const DEFAULT_DRIVE_SUBCATS = [
   'motion', 'herbal', 'archive_classics', 'new_2026'
 ];
 
+const VALID_CATEGORY_FILTERS = ['commercial', 'youtube', 'short_form', 'music_video', 'gdrive', 'all'];
+
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
 export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -124,7 +134,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
           return parsed.map((p: Project) => {
             const def = DEFAULT_PROJECTS.find(dp => dp.id === p.id);
             if (def && def.thumbnailUrl) {
-              return { ...p, thumbnailUrl: def.thumbnailUrl };
+              return { ...p, thumbnailUrl: def.thumbnailUrl, videoUrl: def.videoUrl };
             }
             return p;
           });
@@ -139,7 +149,17 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_TESTIMONIALS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((t: Testimonial) => {
+            if (t.id === 'test-4' && t.projectReference === 'Gourmet Beef Pickle — Heritage Culinary Ad BD') {
+              return { ...t, projectReference: 'Dine Dhaka — Kinetic Animated Social Menu' };
+            }
+            return t;
+          });
+        }
+      }
     } catch (e) {
       console.warn('Failed to load testimonials from localStorage', e);
     }
@@ -165,7 +185,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     return DEFAULT_SITE_SETTINGS;
   });
 
-  const [activeCategory, setActiveCategory] = useState<ProjectCategory | 'all'>('all');
+  const [activeCategory, setActiveCategory] = useState<ActiveCategoryFilter>('all');
   const [activeVideo, setActiveVideo] = useState<ActiveVideoState | null>(null);
 
   // Multi-page navigation state
@@ -275,23 +295,51 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
   }, []);
 
-  // Record traffic telemetry with real-time reactive sync
+  // Track currentPage and projects in stable refs to avoid dependency invalidation cycles
+  const currentPageRef = React.useRef(currentPage);
+  React.useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
+
+  const projectsRef = React.useRef(projects);
+  React.useEffect(() => {
+    projectsRef.current = projects;
+  }, [projects]);
+
+  // Telemetry deduplication ref (prevents burst event cascades)
+  const lastLoggedEventRef = React.useRef<{ key: string; timestamp: number } | null>(null);
+
+  // Record traffic telemetry with real-time reactive sync and event deduplication
   const logTraffic = useCallback((
     type: TrafficEvent['type'], 
     details: string, 
     meta?: Partial<TrafficEvent>
   ) => {
+    const page = meta?.page || currentPageRef.current;
+    const eventKey = `${type}:${page}:${details}`;
+    const now = Date.now();
+
+    // Deduplicate identical events within 1,200ms
+    if (
+      lastLoggedEventRef.current &&
+      lastLoggedEventRef.current.key === eventKey &&
+      now - lastLoggedEventRef.current.timestamp < 1200
+    ) {
+      return;
+    }
+    lastLoggedEventRef.current = { key: eventKey, timestamp: now };
+
     recordTrafficEvent({
       type,
       details,
-      page: meta?.page || currentPage,
+      page,
       ...meta
     });
 
     const stored = getStoredTrafficEvents();
     setTrafficEvents(stored);
     setTrafficStats(computeTrafficStats(stored));
-  }, [currentPage]);
+  }, []);
 
   const resetTraffic = useCallback((regenerateSeed = false) => {
     const updated = resetTrafficStorage(regenerateSeed);
@@ -300,7 +348,51 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     showToast(regenerateSeed ? '📊 Refreshed real-time telemetry benchmark' : '🗑️ Cleared traffic analytics log');
   }, [showToast]);
 
-  // Deep-link parser
+  // Video Lightbox handlers
+  const openProjectVideo = useCallback((project: Project) => {
+    setActiveVideo({
+      isOpen: true,
+      id: project.id,
+      title: project.title,
+      originalName: project.originalName,
+      client: project.client,
+      videoUrl: project.videoUrl,
+      source: project.videoSource,
+      aspectRatio: project.aspectRatio,
+      description: project.description,
+      duration: project.duration,
+      tools: project.tools,
+      metrics: project.metrics,
+      category: project.category,
+      thumbnailUrl: project.thumbnailUrl
+    });
+    logTraffic('video_play', `Streamed video: "${project.title}"`, { videoTitle: project.title, category: project.category });
+  }, [logTraffic]);
+
+  const openShowreelVideo = useCallback(() => {
+    setActiveVideo({
+      isOpen: true,
+      id: 'showreel-master',
+      title: 'Rayhan Gazi — Master Director & Editing Showreel',
+      client: 'Rayhan Gazi (Director & Senior Editor)',
+      videoUrl: settings.showreelUrl,
+      source: settings.showreelSource,
+      aspectRatio: '16:9',
+      description: '4K commercial editing showreel showcasing narrative pacing, kinetic sound design, and ACES color grading.',
+      duration: '2:10',
+      tools: ['DaVinci Resolve Studio 19', 'Premiere Pro', 'After Effects', 'Audition'],
+      metrics: '4K UHD Master · ACES Color Pipeline',
+      category: 'commercial',
+      thumbnailUrl: resolveAssetUrl(settings.showreelThumbnailUrl || 'showreel-thumbnail.jpg')
+    });
+    logTraffic('video_play', 'Streamed Master Showreel 4K', { videoTitle: 'Rayhan Gazi — Master Director & Editing Showreel', page: 'showreel' });
+  }, [settings, logTraffic]);
+
+  const closeVideoModal = useCallback(() => {
+    setActiveVideo(null);
+  }, []);
+
+  // Deep-link parser - stable callback supporting ?page=, ?category=, ?video=, and #hash links
   const parseCurrentUrl = useCallback(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -309,40 +401,46 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       const videoParam = params.get('video');
       const hash = window.location.hash.toLowerCase();
 
-      // Category deep-link
+      // 1. Resolve target page and category
       if (catParam) {
         setCurrentPage('projects');
-        if (['commercial', 'youtube', 'short_form', 'all'].includes(catParam)) {
-          setActiveCategory(catParam as any);
+        if (VALID_CATEGORY_FILTERS.includes(catParam)) {
+          setActiveCategory(catParam as ActiveCategoryFilter);
         }
-        setSharedCategoryNotice(catParam);
+        setSharedCategoryNotice(catParam === 'all' ? null : catParam);
         logTraffic('page_view', `Accessed shared category link: ${catParam.toUpperCase()}`, { page: 'projects', category: catParam });
-        return;
-      }
-
-      // Page query deep-link
-      if (pageParam && ['home', 'projects', 'showreel', 'reviews', 'contact', 'admin'].includes(pageParam)) {
+      } else if (pageParam && ['home', 'projects', 'showreel', 'reviews', 'contact', 'admin'].includes(pageParam)) {
         setCurrentPage(pageParam);
+        if (pageParam === 'projects') {
+          setActiveCategory('all');
+          setSharedCategoryNotice(null);
+        }
         logTraffic('page_view', `Visited ${pageParam.toUpperCase()} page`, { page: pageParam });
-        return;
-      }
-
-      // Hash navigation deep-link
-      if (hash === '#admin') {
+      } else if (hash === '#admin') {
         setCurrentPage('admin');
       } else if (hash === '#showreel') {
         setCurrentPage('showreel');
-      } else if (hash === '#works' || hash === '#drive-demos') {
+      } else if (hash === '#drive-demos') {
         setCurrentPage('projects');
+        setActiveCategory('gdrive');
+        setSharedCategoryNotice('gdrive');
+      } else if (hash === '#works' || hash === '#projects') {
+        setCurrentPage('projects');
+        setActiveCategory('all');
       } else if (hash === '#testimonials' || hash === '#reviews') {
         setCurrentPage('reviews');
       } else if (hash === '#contact') {
         setCurrentPage('contact');
+      } else if (!videoParam) {
+        // Default root URL (e.g. browser Back button to home)
+        setCurrentPage('home');
+        setActiveCategory('all');
+        setSharedCategoryNotice(null);
       }
 
-      // Video query deep-link
+      // 2. Always check video query deep-link (do NOT skip when catParam/pageParam are set!)
       if (videoParam) {
-        const found = projects.find(p => p.id === videoParam);
+        const found = projectsRef.current.find(p => p.id === videoParam);
         if (found) {
           openProjectVideo(found);
         }
@@ -350,11 +448,11 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     } catch (e) {
       // Ignore URL errors
     }
-  }, [projects, logTraffic]);
+  }, [logTraffic, openProjectVideo]);
 
   const initialVisitLoggedRef = React.useRef(false);
 
-  // On mount and popstate
+  // On mount, popstate, and hashchange
   useEffect(() => {
     parseCurrentUrl();
 
@@ -368,20 +466,47 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       } catch {}
     }
 
-    const handlePopState = () => {
+    const handleUrlChange = () => {
       parseCurrentUrl();
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
   }, [parseCurrentUrl, logTraffic]);
 
-  // Page navigation with smooth transition
+  // Synchronize browser tab title dynamically per active view
+  useEffect(() => {
+    const baseTitle = `${settings.editorName} — Video Editor Portfolio`;
+    const pageTitleMap: Record<AppPage, string> = {
+      home: baseTitle,
+      projects:
+        activeCategory === 'all'
+          ? `Selected Works · ${settings.editorName}`
+          : `${activeCategory.replace('_', ' ').toUpperCase()} Works · ${settings.editorName}`,
+      showreel: `4K Master Showreel · ${settings.editorName}`,
+      reviews: `Client Reviews · ${settings.editorName}`,
+      contact: `Book a Project · ${settings.editorName}`,
+      admin: `Studio Admin Hub · ${settings.editorName}`
+    };
+    document.title = pageTitleMap[currentPage] || baseTitle;
+  }, [currentPage, activeCategory, settings.editorName]);
+
+  const transitionTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    };
+  }, []);
+
+  // Page navigation with smooth transition & overlapping timer guard
   const navigateTo = useCallback((
     targetPage: AppPage, 
-    category?: ProjectCategory | 'all' | string,
+    category?: ActiveCategoryFilter | string,
     options?: { transitionLabel?: string }
   ) => {
-    // Generate label
     let label = options?.transitionLabel;
     if (!label) {
       switch (targetPage) {
@@ -410,23 +535,33 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       }
     }
 
+    if (transitionTimerRef.current) {
+      clearTimeout(transitionTimerRef.current);
+    }
+
     setTransitionLabel(label);
     setIsPageTransitioning(true);
 
-    setTimeout(() => {
+    transitionTimerRef.current = setTimeout(() => {
+      transitionTimerRef.current = null;
       setCurrentPage(targetPage);
       if (category) {
-        if (['commercial', 'youtube', 'short_form', 'all'].includes(category)) {
-          setActiveCategory(category as any);
+        if (VALID_CATEGORY_FILTERS.includes(category)) {
+          setActiveCategory(category as ActiveCategoryFilter);
         }
-        setSharedCategoryNotice(category);
+        setSharedCategoryNotice(category === 'all' ? null : category);
       } else {
+        if (targetPage === 'projects') {
+          setActiveCategory('all');
+        }
         setSharedCategoryNotice(null);
       }
 
       // Update URL query parameters cleanly
       try {
         const url = new URL(window.location.href);
+        url.hash = '';
+        url.searchParams.delete('video');
         url.searchParams.set('page', targetPage);
         if (category && category !== 'all') {
           url.searchParams.set('category', category);
@@ -443,78 +578,37 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
 
       // Log traffic event
       logTraffic('page_view', `Navigated to ${targetPage.toUpperCase()} page`, { page: targetPage, category: category || undefined });
-    }, 400);
+    }, 320);
   }, [logTraffic]);
 
-  // Sharable buttons handlers with toast & WhatsApp feedback
+  // Sharable buttons handlers with reliable clipboard fallback & toast feedback
   const shareCategory = useCallback((categoryId: string, label: string) => {
-    const url = `${window.location.origin}${window.location.pathname}?page=projects&category=${categoryId}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-    }
+    const url = buildPortfolioUrl({
+      page: 'projects',
+      category: categoryId !== 'all' ? categoryId : undefined
+    });
+    copyToClipboard(url);
     showToast(`🔗 Copied direct share link to "${label}"`);
     logTraffic('share_link', `Copied share link for category [${categoryId}]`, { category: categoryId });
   }, [showToast, logTraffic]);
 
   const shareProject = useCallback((project: Project) => {
-    const url = `${window.location.origin}${window.location.pathname}?page=projects&category=${project.category}&video=${project.id}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-    }
+    const url = buildPortfolioUrl({
+      page: 'projects',
+      category: project.category,
+      video: project.id
+    });
+    copyToClipboard(url);
     showToast(`🔗 Copied share link for "${project.title}"`);
     logTraffic('share_link', `Copied direct link for project: "${project.title}"`, { videoTitle: project.title, category: project.category });
   }, [showToast, logTraffic]);
 
   const shareShowreel = useCallback(() => {
-    const url = `${window.location.origin}${window.location.pathname}?page=showreel`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-    }
+    const url = buildPortfolioUrl({ page: 'showreel' });
+    copyToClipboard(url);
     showToast(`🔗 Copied direct share link to 4K Master Showreel!`);
     logTraffic('share_link', 'Copied master showreel link', { page: 'showreel' });
   }, [showToast, logTraffic]);
-
-  // Video Lightbox handlers
-  const openProjectVideo = useCallback((project: Project) => {
-    setActiveVideo({
-      isOpen: true,
-      title: project.title,
-      originalName: project.originalName,
-      client: project.client,
-      videoUrl: project.videoUrl,
-      source: project.videoSource,
-      aspectRatio: project.aspectRatio,
-      description: project.description,
-      duration: project.duration,
-      tools: project.tools,
-      metrics: project.metrics,
-      category: project.category,
-      thumbnailUrl: project.thumbnailUrl
-    });
-    logTraffic('video_play', `Streamed video: "${project.title}"`, { videoTitle: project.title, category: project.category });
-  }, [logTraffic]);
-
-  const openShowreelVideo = useCallback(() => {
-    setActiveVideo({
-      isOpen: true,
-      title: 'Rayhan Gazi — Master Director & Editing Showreel',
-      client: 'Rayhan Gazi (Director & Senior Editor)',
-      videoUrl: settings.showreelUrl,
-      source: settings.showreelSource,
-      aspectRatio: '16:9',
-      description: '4K commercial editing showreel showcasing narrative pacing, kinetic sound design, and ACES color grading.',
-      duration: '2:10',
-      tools: ['DaVinci Resolve Studio 19', 'Premiere Pro', 'After Effects', 'Audition'],
-      metrics: '4K UHD Master · ACES Color Pipeline',
-      category: 'commercial',
-      thumbnailUrl: settings.showreelThumbnailUrl || '/showreel-thumbnail.jpg'
-    });
-    logTraffic('video_play', 'Streamed Master Showreel 4K', { videoTitle: 'Rayhan Gazi — Master Director & Editing Showreel', page: 'showreel' });
-  }, [settings, logTraffic]);
-
-  const closeVideoModal = useCallback(() => {
-    setActiveVideo(null);
-  }, []);
 
   // Admin Modal Auth & Controls
   const openAdminModal = () => setIsAdminOpen(true);
@@ -595,7 +689,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     items.forEach((item, idx) => {
       const driveId = extractGoogleDriveId(item.videoUrl);
-      const thumb = driveId ? `https://lh3.googleusercontent.com/d/${driveId}=w800` : '/og-cover.jpg';
+      const thumb = driveId ? `https://lh3.googleusercontent.com/d/${driveId}=w800` : resolveAssetUrl('og-cover.jpg');
       const is916 = item.aspectRatio === '9:16' || item.category === 'short_form';
 
       newProjects.push({
@@ -712,8 +806,9 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       }
       showToast('✓ Portfolio data imported successfully');
       return { success: true };
-    } catch (e: any) {
-      return { success: false, error: e?.message || 'Could not parse JSON file.' };
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Could not parse JSON file.';
+      return { success: false, error: message };
     }
   };
 

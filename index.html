@@ -1,11 +1,14 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth" style="background-color: #090a0f; color: #f8fafc;">
+<html lang="en" class="scroll-smooth" style="background-color: #050811; color: #f8fafc;">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050811" />
     <title>Rayhan Gazi — Video Editor Portfolio</title>
-    <meta name="description" content="Sleek, minimalist video editing portfolio showcasing commercial, YouTube, music video, and vertical short-form projects with instant video playback, client testimonials, and a built-in CMS." />
-    
+    <meta name="description" content="Commercial, YouTube, music video, and vertical short-form editing portfolio by Rayhan Gazi (RG Multimedia, Dhaka) with 4K showreel playback and client results." />
+    <link rel="canonical" href="https://rayhangazi.github.io/Video-Edit-Portfolio/" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23050811'/%3E%3Crect x='2' y='2' width='28' height='28' rx='6' fill='none' stroke='%2306B6D4' stroke-width='2'/%3E%3Cpath d='M12 10l10 6-10 6V10z' fill='%2300F0FF'/%3E%3C/svg%3E" />
+
     <!-- Open Graph / Facebook / WhatsApp Preview Tags -->
     <meta property="og:site_name" content="Rayhan Gazi — Portfolio" />
     <meta property="og:title" content="Rayhan Gazi — Video Editor Portfolio" />
@@ -26,6 +29,37 @@
     <meta name="twitter:description" content="Discover commercial films, high-retention social ads, and cinematic master cuts edited by Rayhan Gazi." />
     <meta name="twitter:image" content="https://rayhangazi.github.io/Video-Edit-Portfolio/og-cover.jpg" />
 
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Person",
+            "name": "Rayhan Gazi",
+            "jobTitle": "Senior Video Editor & Colorist",
+            "url": "https://rayhangazi.github.io/Video-Edit-Portfolio/",
+            "email": "mailto:rayhangazi3@gmail.com",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Dhaka",
+              "addressCountry": "BD"
+            },
+            "worksFor": {
+              "@type": "Organization",
+              "name": "RG Multimedia"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "name": "Rayhan Gazi — Video Editor Portfolio",
+            "url": "https://rayhangazi.github.io/Video-Edit-Portfolio/",
+            "description": "Commercial, YouTube, music video, and vertical short-form editing showcase with 4K master showreel playback."
+          }
+        ]
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -43,25 +77,25 @@
       }
     </style>
   </head>
-  <body class="bg-[#090A0F] text-[#F8FAFC] antialiased selection:bg-[#E5A93C]/20 selection:text-[#E5A93C]" style="background-color: #090a0f; color: #f8fafc; margin: 0; min-height: 100vh;">
+  <body class="bg-[#050811] text-[#F8FAFC] antialiased selection:bg-cyan-500/25 selection:text-cyan-300" style="background-color: #050811; color: #f8fafc; margin: 0; min-height: 100vh;">
     <div id="root">
       <!-- Dark Cinematic Instant Fallback Shell (Replaced automatically when React mounts) -->
-      <div id="initial-loading-shell" style="min-height: 100vh; background-color: #090a0f; color: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 20px;">
-        <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #1A2035, #0F121C); border: 1px solid rgba(229, 169, 60, 0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(229, 169, 60, 0.15);">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E5A93C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div id="initial-loading-shell" style="min-height: 100vh; background-color: #050811; color: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 20px;">
+        <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #082F49, #060D17); border: 1px solid rgba(6, 182, 212, 0.35); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(6, 182, 212, 0.2);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/>
           </svg>
         </div>
         <div style="font-size: 20px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; color: #ffffff;">
           Rayhan Gazi
         </div>
-        <div style="font-size: 11px; color: #94a3b8; font-family: monospace; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 24px;">
+        <div style="font-size: 11px; color: #67e8f9; font-family: monospace; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 24px;">
           Post-Production · Master Cuts
         </div>
-        <div style="width: 180px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; position: relative; margin-bottom: 12px;">
-          <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #E5A93C, #F59E0B); border-radius: 999px; animation: rgPulse 1.2s ease-in-out infinite;"></div>
+        <div style="width: 180px; height: 2px; background: rgba(6,182,212,0.12); border-radius: 999px; overflow: hidden; position: relative; margin-bottom: 12px;">
+          <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #06B6D4, #00F0FF); border-radius: 999px; animation: rgPulse 1.2s ease-in-out infinite;"></div>
         </div>
-        <div style="font-size: 10px; color: #64748b; font-family: monospace; letter-spacing: 0.05em;">
+        <div style="font-size: 10px; color: #94a3b8; font-family: monospace; letter-spacing: 0.05em;">
           Loading Portfolio...
         </div>
       </div>

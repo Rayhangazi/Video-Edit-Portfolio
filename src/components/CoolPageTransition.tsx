@@ -24,14 +24,10 @@ export const CoolPageTransition: React.FC = () => {
 
       {/* Cinematic Film Centerpiece */}
       <div className="relative z-10 flex flex-col items-center text-center px-6 gpu-stabilize">
-        <div className="relative mb-4">
+        <div className="mb-4">
           <div className="w-12 h-12 rounded-xl glass-card border border-cyan-500/40 flex items-center justify-center shadow-lg shadow-cyan-400/20">
-            <Film className="w-6 h-6 text-cyan-400 animate-pulse" />
+            <Film className="w-6 h-6 text-cyan-400" />
           </div>
-          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 isolate">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00F0FF]"></span>
-          </span>
         </div>
 
         {/* Dynamic Transition Label with Anti-Flicker stabilization */}

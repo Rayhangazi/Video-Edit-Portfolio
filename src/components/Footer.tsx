@@ -1,10 +1,9 @@
 import React from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Lock, ArrowUp, Film, Sparkles } from 'lucide-react';
-import { AppPage } from '../types/portfolio';
+import { Lock, ArrowUp, Sparkles } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { settings, openAdminModal, isAuthenticated, navigateTo } = usePortfolio();
+  const { settings, isAuthenticated, navigateTo } = usePortfolio();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -32,7 +31,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Quick Nav Links */}
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-300 font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 text-xs text-slate-300 font-medium">
             <button 
               onClick={() => navigateTo('home')} 
               className="hover:text-cyan-300 transition-colors cursor-pointer"
@@ -50,6 +49,18 @@ export const Footer: React.FC = () => {
               className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
               Commercials
+            </button>
+            <button 
+              onClick={() => navigateTo('projects', 'youtube')} 
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
+            >
+              YouTube Cuts
+            </button>
+            <button 
+              onClick={() => navigateTo('projects', 'short_form')} 
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
+            >
+              9:16 Reels
             </button>
             <button 
               onClick={() => navigateTo('projects', 'gdrive')} 
@@ -91,8 +102,17 @@ export const Footer: React.FC = () => {
 
         {/* Bottom bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <div>
-            © {new Date().getFullYear()} {settings.editorName} · RG Multimedia (Dhaka, Bangladesh). All rights reserved.
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <span>© {new Date().getFullYear()} {settings.editorName} · RG Multimedia (Dhaka, Bangladesh).</span>
+            <span className="hidden sm:inline text-slate-600">·</span>
+            <a
+              href={`mailto:${settings.email}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400/90 hover:text-cyan-300 font-mono transition-colors"
+            >
+              {settings.email}
+            </a>
           </div>
 
           <div className="flex items-center gap-4">

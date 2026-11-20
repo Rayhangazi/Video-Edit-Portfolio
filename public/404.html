@@ -2,13 +2,177 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; url=./" />
-    <title>Redirecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rayhan Gazi — Redirecting to Portfolio</title>
+    <style>
+      body {
+        background-color: #050811;
+        color: #f8fafc;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 24px;
+        box-sizing: border-box;
+        text-align: center;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: monospace;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #22d3ee;
+        background: rgba(6, 182, 212, 0.12);
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        padding: 6px 14px;
+        border-radius: 9999px;
+        margin-bottom: 20px;
+      }
+      .title {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+        margin: 0 0 10px 0;
+      }
+      .desc {
+        font-size: 14px;
+        color: #94a3b8;
+        max-width: 440px;
+        margin: 0 0 24px 0;
+        line-height: 1.5;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(90deg, #06b6d4, #00f0ff);
+        color: #050811;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 12px 28px;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);
+      }
+      .btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+      }
+      .pulse-bar {
+        width: 140px;
+        height: 3px;
+        background: rgba(6, 182, 212, 0.12);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 24px;
+      }
+      .pulse-bar-fill {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #06b6d4, #00f0ff);
+        border-radius: 999px;
+        animation: rgLoading 1.2s infinite ease-in-out;
+      }
+      @keyframes rgLoading {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+      .hidden { display: none !important; }
+    </style>
     <script>
-      window.location.replace('./');
+      (function() {
+        var defaultPortfolioPath = '/Video-Edit-Portfolio/';
+        var host = window.location.hostname;
+        var pathname = window.location.pathname;
+        var search = window.location.search || '';
+        var hash = window.location.hash || '';
+
+        // Prevent infinite reload loops via sessionStorage guard
+        var loopKey = 'rg_redirect_timestamp';
+        var countKey = 'rg_redirect_count';
+        var now = Date.now();
+        var lastRedirect = parseInt(sessionStorage.getItem(loopKey) || '0', 10);
+        var redirectCount = parseInt(sessionStorage.getItem(countKey) || '0', 10);
+
+        // If redirected more than 2 times in under 6 seconds, stop automated looping
+        if (now - lastRedirect < 6000 && redirectCount >= 2) {
+          console.warn('[Rayhan Gazi Portfolio] Redirect loop prevented. Showing manual navigation.');
+          window.addEventListener('DOMContentLoaded', function() {
+            var loopNotice = document.getElementById('loop-warning');
+            var loadingBar = document.getElementById('loading-indicator');
+            if (loopNotice) loopNotice.classList.remove('hidden');
+            if (loadingBar) loadingBar.classList.add('hidden');
+          });
+          return;
+        }
+
+        // Record attempt
+        sessionStorage.setItem(loopKey, String(now));
+        sessionStorage.setItem(countKey, String(redirectCount + 1));
+
+        // Determine destination URL
+        var targetUrl;
+        if (host === 'rayhangazi.github.io' || host.indexOf('github.io') !== -1) {
+          // If accessing root or arbitrary non-portfolio path on GitHub Pages
+          if (!pathname.startsWith('/Video-Edit-Portfolio')) {
+            // Forward directly to repository portfolio project
+            var subPath = pathname.replace(/^\/+/, '');
+            var extraParams = search;
+            if (subPath) {
+              extraParams += (extraParams ? '&' : '?') + 'from=' + encodeURIComponent(subPath);
+            }
+            targetUrl = defaultPortfolioPath + extraParams + hash;
+          } else {
+            // Within /Video-Edit-Portfolio/ but hit a 404 subpath -> route to base with SPA query
+            targetUrl = defaultPortfolioPath + search + hash;
+          }
+        } else {
+          // Localhost or preview host
+          targetUrl = './' + search + hash;
+        }
+
+        // Perform clean navigation without leaving recursive 404 history entries
+        try {
+          window.location.replace(targetUrl);
+        } catch (e) {
+          window.location.href = targetUrl;
+        }
+      })();
     </script>
   </head>
-  <body style="background-color: #090A0F; color: #F8FAFC; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-    <p>Redirecting to Rayhan Gazi Portfolio...</p>
+  <body>
+    <div class="badge">Rayhan Gazi · Portfolio</div>
+    <h1 class="title">Connecting to Video Editor Portfolio</h1>
+    <p class="desc" id="status-text">Directing your browser to the high-retention video cuts and commercial showreel...</p>
+
+    <div id="loading-indicator" class="pulse-bar">
+      <div class="pulse-bar-fill"></div>
+    </div>
+
+    <!-- Manual fallback and loop protector alert -->
+    <div id="loop-warning" class="hidden" style="margin-top: 10px;">
+      <p style="color: #f87171; font-size: 13px; margin-bottom: 16px;">
+        Automatic redirection was paused to prevent rate-limiting. Click below to enter:
+      </p>
+      <a class="btn" href="https://rayhangazi.github.io/Video-Edit-Portfolio/">
+        Open Portfolio Directly &rarr;
+      </a>
+    </div>
+
+    <noscript>
+      <div style="margin-top: 16px;">
+        <a class="btn" href="https://rayhangazi.github.io/Video-Edit-Portfolio/">
+          Open Rayhan Gazi Portfolio &rarr;
+        </a>
+      </div>
+    </noscript>
   </body>
 </html>
